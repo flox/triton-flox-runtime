@@ -257,7 +257,7 @@ TRITON_HTTP_PORT=9000 TRITON_LOG_VERBOSE=1 flox activate --start-services
 | `TRITON_OPENAI_FRONTEND` | `false` | Enable the OpenAI-compatible frontend mode. When `true`, `triton-serve` execs `python3 main.py` instead of `tritonserver`. Accepts `true`/`false`/`1`/`0`/`yes`/`no` |
 | `TRITON_OPENAI_PORT` | `9000` | Port for the OpenAI-compatible frontend. Must be a positive integer |
 | `TRITON_OPENAI_MAIN` | _(auto-discovered)_ | Path to `main.py`. Auto-searches `/opt/tritonserver/python/openai/main.py` and relative to the `tritonserver` binary. Set explicitly for non-standard installs |
-| `TRITON_OPENAI_TOKENIZER` | _(unset)_ | HuggingFace tokenizer for chat template rendering (e.g., `meta-llama/Llama-3-8B`). Required for chat completions |
+| `TRITON_OPENAI_TOKENIZER` | _(auto-resolved)_ | HuggingFace tokenizer for chat template rendering. Auto-resolved from the `model` field in `model.json` for vLLM models (falls back to `tokenizer/` directory). Set explicitly to override (e.g., `meta-llama/Llama-3-8B`) |
 
 ### Pre-flight settings
 
@@ -872,7 +872,7 @@ TRITON_OPENAI_MAIN=/path/to/openai/main.py flox activate --start-services
 
 ### Chat completions return empty
 
-`TRITON_OPENAI_TOKENIZER` is required for chat completions. Set it to the HuggingFace tokenizer that matches your model:
+`TRITON_OPENAI_TOKENIZER` is required for chat completions. For vLLM models, it is auto-resolved from the `model` field in `model.json`. If auto-resolution fails (non-vLLM backend or missing field), set it explicitly:
 
 ```bash
 TRITON_OPENAI_TOKENIZER=meta-llama/Llama-3-8B flox activate --start-services
