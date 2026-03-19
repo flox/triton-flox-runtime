@@ -780,26 +780,29 @@ The deployment uses `runtimeClassName: flox` and `image: flox/empty:1.0.0` — t
 
 ### Storage
 
-Model weights are stored on the PVC mounted at `/models`. The pod sets `HF_HUB_CACHE=/models` to override the default (`$FLOX_ENV_CACHE/hf-hub`) which is ephemeral in Kubernetes. The default Phi-4-mini-instruct model (~7.5 GB) is downloaded from GitHub Releases on first startup; subsequent restarts use the cached copy.
+Model weights and configs are stored on the PVC mounted at `/models`. The pod sets two env vars to point at PVC subdirectories:
+
+- `HF_HUB_CACHE=/models/hf-hub` — persists downloaded model weights
+- `TRITON_MODEL_REPOSITORY=/models/repository` — persists model configs and symlinks
+
+Without these overrides both paths default to `$FLOX_ENV_CACHE` subdirs, which are ephemeral in Kubernetes. The default Phi-4-mini-instruct model (~7.5 GB) is downloaded from GitHub Releases on first startup; subsequent restarts use the cached copy.
 
 Set the `storageClassName` in `k8s/pvc.yaml` to match your cluster:
 
 ```yaml
-storageClassName: gp3  # AWS EBS
-storageClassName: standard-rwo  # GKE
+storageClassName: gp3            # AWS EBS
+storageClassName: standard-rwo   # GKE
 storageClassName: managed-premium  # AKS
 ```
 
 ### Secrets
 
-Create a Kubernetes Secret for gated model access, then uncomment the `secretKeyRef` block in the deployment:
+Triton does not require API authentication by default. The only secret is `HF_TOKEN`, needed only when pulling gated HuggingFace models. Create a Kubernetes Secret and uncomment the `secretKeyRef` block in the deployment:
 
 ```bash
 kubectl -n triton create secret generic triton-secrets \
   --from-literal=hf-token='hf_...'
 ```
-
-The `HF_TOKEN` is only needed for downloading gated models from HuggingFace. Triton itself has no built-in API authentication.
 
 ### Customizing the model
 
@@ -813,6 +816,8 @@ env:
     value: "vllm"
 ```
 
+Ensure that the model has a corresponding directory in the model repository (see [Model repository layout](#model-repository-layout)).
+
 To enable the OpenAI-compatible frontend on port 9000:
 
 ```yaml
@@ -821,9 +826,9 @@ env:
     value: "true"
 ```
 
-### Multi-GPU
+### Multi-GPU inference
 
-For multi-GPU inference, request additional GPUs in the resource limits:
+For multi-GPU models, request additional GPUs in the deployment:
 
 ```yaml
 resources:
@@ -833,7 +838,7 @@ resources:
 
 ### Startup timing
 
-The on-activate hook runs `triton-setup-backends` and installs OpenAI frontend dependencies into `$FLOX_ENV_CACHE` on every pod start (~2-3 min even with a warm PVC). The `startupProbe` allows 10 minutes (60 failures x 10s) to cover warm starts including this ephemeral cache rebuild. For cold starts (first-time model download), increase the threshold:
+The on-activate hook runs `triton-setup-backends` and installs OpenAI frontend dependencies into `$FLOX_ENV_CACHE` on every pod start (~2-3 min even with a warm PVC). The `startupProbe` allows 10 minutes (60 failures × 10s) to cover warm starts including this ephemeral cache rebuild. For cold starts (first-time model download), increase the threshold:
 
 ```yaml
 startupProbe:

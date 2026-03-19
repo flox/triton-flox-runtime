@@ -42,15 +42,17 @@ spec:
           command: ["sh", "-c", "triton-resolve-model && triton-serve"]
 
           env:
-            # Override the default HuggingFace cache directory to use the PVC
-            # mount path. Without this, HF_HUB_CACHE defaults to
-            # $FLOX_ENV_CACHE/hf-hub which is ephemeral in Kubernetes.
+            # Override the default cache/repository paths to use the PVC mount.
+            # Without these, both default to $FLOX_ENV_CACHE subdirs which are
+            # ephemeral in Kubernetes.
             - name: HF_HUB_CACHE
-              value: "/models"
+              value: "/models/hf-hub"
+            - name: TRITON_MODEL_REPOSITORY
+              value: "/models/repository"
 
             # ── Secrets ──
-            # Uncomment and create the referenced Secret to enable gated
-            # model downloads from HuggingFace:
+            # Uncomment and create the referenced Secret to pull gated
+            # HuggingFace models:
             #
             # - name: HF_TOKEN
             #   valueFrom:
@@ -69,6 +71,12 @@ spec:
             #   value: "true"
             # - name: TRITON_OPENAI_PORT
             #   value: "9000"
+            # - name: TRITON_HTTP_PORT
+            #   value: "8000"
+            # - name: TRITON_GRPC_PORT
+            #   value: "8001"
+            # - name: TRITON_METRICS_PORT
+            #   value: "8002"
 
           ports:
             - name: http
