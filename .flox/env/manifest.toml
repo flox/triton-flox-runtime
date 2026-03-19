@@ -42,9 +42,12 @@ iproute2.pkg-path = "iproute2"
 iproute2.systems = ["x86_64-linux"]
 iproute2.outputs = "all"
 uv.pkg-path = "uv"
-# phi-4-mini-instruct-fp8-torchao.pkg-path = "flox/phi-4-mini-instruct-fp8-torchao"
-# phi-4-mini-instruct-fp8-torchao.systems = ["x86_64-linux"]
-phi-3-5-mini-instruct-awq.store-path = "/nix/store/106aab58dnblxmihxk9cccxvyg0b9ca4-phi-3.5-mini-instruct-awq-1.0.0+d6c46be"
+
+# example model for model serving; delete or uncomment not to use
+vllm-phi-3-5-mini-instruct-awq.pkg-path = "flox/vllm-phi-3-5-mini-instruct-awq"
+vllm-phi-3-5-mini-instruct-awq.pkg-group = "vllm-phi-3-5-mini-instruct-awq"
+vllm-phi-3-5-mini-instruct-awq.systems = ["x86_64-linux"]
+
 
 [hook]
 on-activate = '''
