@@ -22,17 +22,17 @@ TRITON_MODEL_BACKEND=onnx \
 
 # Launch with OpenAI-compatible frontend (port 9000)
 TRITON_OPENAI_FRONTEND=true \
-TRITON_MODEL=phi4_mini_instruct \
+TRITON_MODEL=phi3_5_mini_instruct_awq \
   flox activate --start-services
 ```
 
 ### Default model
 
-By default, `flox activate --start-services` serves **Phi-4-mini-instruct** (`microsoft/Phi-4-mini-instruct`, bfloat16, 3.8B parameters) via the vLLM backend.
+By default, `flox activate --start-services` serves **Phi-3.5-mini-instruct-AWQ** (`microsoft/Phi-3.5-mini-instruct`, AWQ 4-bit, 3.8B parameters) via the vLLM backend.
 
-- **Auto-downloaded** from [`barstoolbluz/build-hf-models`](https://github.com/barstoolbluz/build-hf-models) GitHub releases on first activation (~7.5 GB)
-- **Stored** in `$FLOX_ENV_CACHE/hf-hub/` in HuggingFace cache layout
-- **Zero network access** after first download — vLLM resolves the model locally via `HF_HUB_CACHE`
+- **Installed as a Flox package** via Nix store-path from [`barstoolbluz/build-hf-models`](https://github.com/barstoolbluz/build-hf-models) (~2.2 GB)
+- **Zero network access** — the model is available immediately after activation, no download required
+- **T4-compatible** — AWQ 4-bit quantization works on all CUDA GPUs including Tesla T4 (sm75)
 - **Tokenizer** auto-resolved from `model.json` configuration
 - **Override** with `TRITON_MODEL=other_model` to serve a different model
 
@@ -74,7 +74,7 @@ gRPC health checks require `grpcurl` or a gRPC client on port 8001. See the [Tri
 cd ~/dev/triton-api-client && flox activate
 
 # Universal inference (auto-detects model type)
-TRITON_MODEL=phi4_mini_instruct triton-infer "The capital of France is"
+TRITON_MODEL=phi3_5_mini_instruct_awq triton-infer "The capital of France is"
 
 # Interactive chat (OpenAI frontend, port 9000)
 TRITON_MODEL=my-llm triton-chat
@@ -135,7 +135,7 @@ chained separately.
 │  │  on-activate (flox activate)                       │  │
 │  │    triton-setup-backends  → $FLOX_ENV_CACHE/backends│  │
 │  │    triton-setup-models    → $FLOX_ENV_CACHE/models  │  │
-│  │      (Tier 1/2 + GitHub releases model download)   │  │
+│  │      (Tier 1/2 from Nix store packages)            │  │
 │  ├────────────────────────────────────────────────────┤  │
 │  │  triton-resolve-model                              │  │
 │  │    Sources: flox → local → r2 → hf-hub             │  │
@@ -229,7 +229,7 @@ TRITON_HTTP_PORT=9000 TRITON_LOG_VERBOSE=1 flox activate --start-services
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `TRITON_MODEL` | `phi4_mini_instruct` | Model name (directory name within the repository). Controls which model `triton-resolve-model` provisions — does **not** restrict which models tritonserver loads (see `TRITON_MODEL_CONTROL_MODE`). Must not contain `/`, `\`, or be `.`/`..` |
+| `TRITON_MODEL` | `phi3_5_mini_instruct_awq` | Model name (directory name within the repository). Controls which model `triton-resolve-model` provisions — does **not** restrict which models tritonserver loads (see `TRITON_MODEL_CONTROL_MODE`). Must not contain `/`, `\`, or be `.`/`..` |
 | `TRITON_MODEL_REPOSITORY` | _(required)_ | Base model repository path. Created automatically if missing |
 | `TRITON_MODEL_ID` | _(unset)_ | Explicit HuggingFace model ID (`org/repo`) for hf-hub source |
 | `TRITON_MODEL_ORG` | _(unset)_ | HF org prefix. Used to derive model ID as `$TRITON_MODEL_ORG/$TRITON_MODEL` |
@@ -782,10 +782,10 @@ The deployment uses `runtimeClassName: flox` and `image: flox/empty:1.0.0` — t
 
 Model weights and configs are stored on the PVC mounted at `/models`. The pod sets two env vars to point at PVC subdirectories:
 
-- `HF_HUB_CACHE=/models/hf-hub` — persists downloaded model weights
+- `HF_HUB_CACHE=/models/hf-hub` — persists downloaded model weights (for non-Flox-packaged models)
 - `TRITON_MODEL_REPOSITORY=/models/repository` — persists model configs and symlinks
 
-Without these overrides both paths default to `$FLOX_ENV_CACHE` subdirs, which are ephemeral in Kubernetes. The default Phi-4-mini-instruct model (~7.5 GB) is downloaded from GitHub Releases on first startup; subsequent restarts use the cached copy.
+Without these overrides both paths default to `$FLOX_ENV_CACHE` subdirs, which are ephemeral in Kubernetes. The default Phi-3.5-mini-instruct-AWQ model (~2.2 GB) is installed as a Flox package and available immediately — no download required at startup.
 
 Set the `storageClassName` in `k8s/pvc.yaml` to match your cluster:
 
@@ -1296,7 +1296,7 @@ triton-runtime/
   #   tensorrt/     -> $FLOX_ENV/backends/tensorrt/      (Tier 1, from catalog)
   #   vllm/         -> per-file symlinks + python stub   (Tier 2, assembled)
   # At activation, triton-setup-models assembles $FLOX_ENV_CACHE/models/:
-  #   phi4_mini_instruct/         -> Tier 2 (symlinked from $FLOX_ENV_PROJECT/models/)
+  #   phi3_5_mini_instruct_awq/   -> Tier 1 (from Nix store package)
   #   vllm_test/                  -> Tier 2 (symlinked from $FLOX_ENV_PROJECT/models/)
   scripts/                      # Runtime script sources (also bundled in triton-server package)
     _lib.sh                     # Shared library sourced by the other scripts
@@ -1314,7 +1314,7 @@ triton-runtime/
       config.pbtxt
       1/
         model.json
-    phi4_mini_instruct/         # Phi-4-mini-instruct via vLLM backend (default model)
+    phi4_mini_instruct/         # Phi-4-mini-instruct via vLLM backend
       config.pbtxt
       1/
         model.json

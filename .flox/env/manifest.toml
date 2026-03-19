@@ -1,4 +1,4 @@
-version = 1
+schema-version = "1.10.0"
 
 
 [install]
@@ -17,32 +17,40 @@ triton-tensorrt-backend.systems = ["x86_64-linux"]
 triton-tensorrt-backend.priority = 6
 ## other required deps
 shellcheck.pkg-path = "shellcheck"
+shellcheck.outputs = "all"
 bats.pkg-path = "bats"
 numpy.pkg-path = "flox-cuda/python3Packages.numpy"
 numpy.systems = ["aarch64-linux", "x86_64-linux"]
 numpy.pkg-group = "numpy"
+numpy.outputs = "all"
 torch.pkg-path = "flox-cuda/python3Packages.torch"
 torch.systems = ["aarch64-linux", "x86_64-linux"]
 torch.pkg-group = "torch"
+torch.outputs = "all"
 transformers.pkg-path = "flox-cuda/python3Packages.transformers"
 transformers.systems = ["aarch64-linux", "x86_64-linux"]
 transformers.pkg-group = "transformers"
+transformers.outputs = "all"
 vllm.pkg-path = "flox-cuda/python3Packages.vllm"
 vllm.systems = ["x86_64-linux"]
 vllm.pkg-group = "vllm"
+vllm.outputs = "all"
 util-linux.pkg-path = "util-linux"
 util-linux.systems = ["x86_64-linux"]
+util-linux.outputs = "all"
 iproute2.pkg-path = "iproute2"
 iproute2.systems = ["x86_64-linux"]
+iproute2.outputs = "all"
 uv.pkg-path = "uv"
-phi-4-mini-instruct-fp8-torchao.pkg-path = "flox/phi-4-mini-instruct-fp8-torchao"
-phi-4-mini-instruct-fp8-torchao.systems = ["x86_64-linux"]
+# phi-4-mini-instruct-fp8-torchao.pkg-path = "flox/phi-4-mini-instruct-fp8-torchao"
+# phi-4-mini-instruct-fp8-torchao.systems = ["x86_64-linux"]
+phi-3-5-mini-instruct-awq.store-path = "/nix/store/106aab58dnblxmihxk9cccxvyg0b9ca4-phi-3.5-mini-instruct-awq-1.0.0+d6c46be"
 
 [hook]
 on-activate = '''
   # Runtime defaults — override at activation time, e.g.:
   #   TRITON_MODEL=my_model flox activate --start-services
-  export TRITON_MODEL="${TRITON_MODEL:-phi4_mini_instruct_fp8}"
+  export TRITON_MODEL="${TRITON_MODEL:-phi3_5_mini_instruct_awq}"
   export TRITON_OPENAI_FRONTEND="${TRITON_OPENAI_FRONTEND:-true}"
 
   triton-setup-backends
@@ -52,7 +60,7 @@ on-activate = '''
   _cuda_stub_dir="$FLOX_ENV_CACHE/cuda-driver-stub"
   if [[ ! -d "$_cuda_stub_dir" ]]; then
     mkdir -p "$_cuda_stub_dir"
-    for _lib in libcuda.so.1 libnvidia-ml.so.1; do
+    for _lib in libcuda.so.1 libnvidia-ml.so.1 libnvidia-ptxjitcompiler.so.1; do
       for _dir in /usr/lib/x86_64-linux-gnu /usr/lib64; do
         if [[ -e "$_dir/$_lib" ]]; then
           ln -sf "$_dir/$_lib" "$_cuda_stub_dir/$_lib"
@@ -60,47 +68,16 @@ on-activate = '''
         fi
       done
     done
+    # PTX JIT compiler — needed for flash attention on older GPUs (e.g. T4/sm75)
+    _nvjit="/nix/store/7pj5iv9www8s4jg41q7lmmiiq907z1k3-cuda12.8-libnvjitlink-12.8.93-lib/lib/libnvJitLink.so.12"
+    if [[ -e "$_nvjit" ]]; then
+      ln -sf "$_nvjit" "$_cuda_stub_dir/libnvJitLink.so.12"
+    fi
   fi
   export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}$_cuda_stub_dir"
 
-  # HF model cache — download from GitHub releases on first activation.
-  # Tarball contains flat model files; we reconstruct the HF cache layout
-  # so vLLM resolves "microsoft/Phi-4-mini-instruct" locally via HF_HUB_CACHE.
-  export HF_HUB_CACHE="${HF_HUB_CACHE:-$FLOX_ENV_CACHE/hf-hub}"
-  _hf_slug="models--microsoft--Phi-4-mini-instruct"
-  _snapshot_id="phi-4-mini-instruct-v1.0"
-  _snap_dir="$HF_HUB_CACHE/$_hf_slug/snapshots/$_snapshot_id"
-  if [[ ! -d "$_snap_dir" ]]; then
-    echo "Downloading Phi-4-mini-instruct model from GitHub releases..."
-    _dl_dir="$(mktemp -d)"
-    trap 'rm -rf "$_dl_dir"' EXIT
-    _repo="barstoolbluz/build-hf-models"
-    _tag="phi-4-mini-instruct-v1.0"
-    _base_url="https://github.com/$_repo/releases/download/$_tag"
-    curl -fSL -o "$_dl_dir/phi-4-mini-instruct.sha256sums" "$_base_url/phi-4-mini-instruct.sha256sums"
-    for _part in phi-4-mini-instruct.tar.part-aa \
-                 phi-4-mini-instruct.tar.part-ab \
-                 phi-4-mini-instruct.tar.part-ac \
-                 phi-4-mini-instruct.tar.part-ad; do
-      echo "  Fetching $_part ..."
-      curl -fSL -o "$_dl_dir/$_part" "$_base_url/$_part"
-    done
-    echo "  Verifying checksums ..."
-    (cd "$_dl_dir" && sha256sum -c phi-4-mini-instruct.sha256sums) || {
-      echo "ERROR: checksum verification failed" >&2
-      rm -rf "$_dl_dir"
-      trap - EXIT
-      return 1
-    }
-    echo "  Extracting model to $HF_HUB_CACHE ..."
-    mkdir -p "$_snap_dir"
-    cat "$_dl_dir"/phi-4-mini-instruct.tar.part-* | tar xf - -C "$_snap_dir"
-    rm -rf "$_dl_dir"
-    trap - EXIT
-    mkdir -p "$HF_HUB_CACHE/$_hf_slug/refs"
-    printf '%s' "$_snapshot_id" > "$HF_HUB_CACHE/$_hf_slug/refs/main"
-    echo "  Model ready."
-  fi
+  # HF model cache (disabled — using Flox-packaged model via store-path)
+  # export HF_HUB_CACHE="${HF_HUB_CACHE:-$FLOX_ENV_CACHE/hf-hub}"
 
   triton-setup-models
   export TRITON_MODEL_REPOSITORY="${TRITON_MODEL_REPOSITORY:-$FLOX_ENV_CACHE/models}"
