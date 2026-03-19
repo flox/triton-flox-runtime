@@ -748,6 +748,130 @@ flox services stop                    # stop all services
 flox activate --start-services        # activate and start in one step
 ```
 
+## Kubernetes deployment
+
+Deploy Triton to Kubernetes using the Flox "Imageless Kubernetes" (uncontained) pattern. The Flox containerd shim pulls the environment from FloxHub at pod startup, replacing the need for a container image.
+
+### Prerequisites
+
+- A Kubernetes cluster with the [Flox containerd shim](https://flox.dev/docs/tutorials/kubernetes/) installed on GPU nodes
+- NVIDIA GPU operator or device plugin configured
+- A StorageClass that supports `ReadWriteOnce` PVCs
+
+### Deploy
+
+```bash
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/pvc.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+```
+
+### What the manifests do
+
+| File | Purpose |
+|------|---------|
+| `k8s/namespace.yaml` | Creates the `triton` namespace |
+| `k8s/pvc.yaml` | 50 Gi `ReadWriteOnce` volume for model storage at `/models` |
+| `k8s/deployment.yaml` | Single-replica pod with Flox shim, GPU resources, health probes |
+| `k8s/service.yaml` | ClusterIP service exposing HTTP (8000), gRPC (8001), metrics (8002), and OpenAI (9000) ports |
+
+The deployment uses `runtimeClassName: flox` and `image: flox/empty:1.0.0` — the Flox shim intercepts pod creation, pulls `barstoolbluz/triton-runtime` from FloxHub, activates the environment, then runs the entrypoint (`triton-resolve-model && triton-serve`).
+
+### Storage
+
+Model weights are stored on the PVC mounted at `/models`. The pod sets `HF_HUB_CACHE=/models` to override the default (`$FLOX_ENV_CACHE/hf-hub`) which is ephemeral in Kubernetes. The default Phi-4-mini-instruct model (~7.5 GB) is downloaded from GitHub Releases on first startup; subsequent restarts use the cached copy.
+
+Set the `storageClassName` in `k8s/pvc.yaml` to match your cluster:
+
+```yaml
+storageClassName: gp3  # AWS EBS
+storageClassName: standard-rwo  # GKE
+storageClassName: managed-premium  # AKS
+```
+
+### Secrets
+
+Create a Kubernetes Secret for gated model access, then uncomment the `secretKeyRef` block in the deployment:
+
+```bash
+kubectl -n triton create secret generic triton-secrets \
+  --from-literal=hf-token='hf_...'
+```
+
+The `HF_TOKEN` is only needed for downloading gated models from HuggingFace. Triton itself has no built-in API authentication.
+
+### Customizing the model
+
+Override the model via pod environment variables:
+
+```yaml
+env:
+  - name: TRITON_MODEL
+    value: "qwen3_8b"
+  - name: TRITON_MODEL_BACKEND
+    value: "vllm"
+```
+
+To enable the OpenAI-compatible frontend on port 9000:
+
+```yaml
+env:
+  - name: TRITON_OPENAI_FRONTEND
+    value: "true"
+```
+
+### Multi-GPU
+
+For multi-GPU inference, request additional GPUs in the resource limits:
+
+```yaml
+resources:
+  limits:
+    nvidia.com/gpu: 2
+```
+
+### Startup timing
+
+The on-activate hook runs `triton-setup-backends` and installs OpenAI frontend dependencies into `$FLOX_ENV_CACHE` on every pod start (~2-3 min even with a warm PVC). The `startupProbe` allows 10 minutes (60 failures x 10s) to cover warm starts including this ephemeral cache rebuild. For cold starts (first-time model download), increase the threshold:
+
+```yaml
+startupProbe:
+  failureThreshold: 120  # 20 minutes for cold start
+```
+
+Liveness and readiness probes are gated behind the startup probe and will not kill slow-starting pods.
+
+### Verifying the deployment
+
+```bash
+# Watch pod startup
+kubectl -n triton get pods -w
+
+# Check logs
+kubectl -n triton logs -f deployment/triton
+
+# Health check (from within the cluster)
+kubectl -n triton run curl --rm -it --image=curlimages/curl -- \
+  curl http://triton:8000/v2/health/ready
+
+# Port-forward for local access
+kubectl -n triton port-forward svc/triton 8000:8000
+curl http://localhost:8000/v2/health/ready
+```
+
+### Exposing externally
+
+The service defaults to `ClusterIP`. For external access, change the type or add an Ingress:
+
+```bash
+# Quick LoadBalancer (exposes all four ports)
+kubectl -n triton patch svc triton -p '{"spec":{"type":"LoadBalancer"}}'
+
+# Or use port-forward for development
+kubectl -n triton port-forward svc/triton 8000:8000 8001:8001 8002:8002 9000:9000
+```
+
 ## Troubleshooting
 
 Common issues and their solutions. Exit codes refer to `triton-preflight`.
@@ -1152,6 +1276,11 @@ curl -X POST http://127.0.0.1:8000/v2/models/vllm_test/generate \
 ```
 triton-runtime/
   .flox/env/manifest.toml      # Flox manifest (packages, hook, service)
+  k8s/                          # Kubernetes manifests (Flox uncontained pattern)
+    namespace.yaml              # triton namespace
+    pvc.yaml                    # 50 Gi model storage PVC
+    deployment.yaml             # Single-replica GPU pod with Flox shim
+    service.yaml                # ClusterIP service (HTTP, gRPC, metrics, OpenAI)
   backends/                     # Repo-local backend sources
     vllm/                       # Pure Python backend (vllm_backend r26.02 sources)
       model.py                  # Main TritonPythonModel

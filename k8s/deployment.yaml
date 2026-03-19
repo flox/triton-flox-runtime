@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triton
+  namespace: triton
+  labels:
+    app.kubernetes.io/name: triton
+spec:
+  # Single replica: Triton holds GPU memory exclusively and model cache is
+  # node-local (PVC is ReadWriteOnce). Scale by adding Deployments on
+  # separate nodes, not by increasing replicas.
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: triton
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: triton
+      annotations:
+        flox.dev/environment: "barstoolbluz/triton-runtime"
+        # Activate mode "run" (the default) is correct here — uv, shellcheck,
+        # and bats are explicitly installed packages (available in run mode).
+        # The on-activate hook runs triton-setup-backends, triton-setup-models,
+        # and installs OpenAI frontend deps into $FLOX_ENV_CACHE on every start.
+    spec:
+      runtimeClassName: flox
+
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+
+      volumes:
+        - name: triton-models
+          persistentVolumeClaim:
+            claimName: triton-models
+
+      containers:
+        - name: triton
+          image: flox/empty:1.0.0
+          command: ["sh", "-c", "triton-resolve-model && triton-serve"]
+
+          env:
+            # Override the default HuggingFace cache directory to use the PVC
+            # mount path. Without this, HF_HUB_CACHE defaults to
+            # $FLOX_ENV_CACHE/hf-hub which is ephemeral in Kubernetes.
+            - name: HF_HUB_CACHE
+              value: "/models"
+
+            # ── Secrets ──
+            # Uncomment and create the referenced Secret to enable gated
+            # model downloads from HuggingFace:
+            #
+            # - name: HF_TOKEN
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: triton-secrets
+            #       key: hf-token
+
+            # ── Optional tuning overrides ──
+            # Uncomment any of these to override on-activate defaults:
+            #
+            # - name: TRITON_MODEL
+            #   value: "phi4_mini_instruct"
+            # - name: TRITON_MODEL_BACKEND
+            #   value: "vllm"
+            # - name: TRITON_OPENAI_FRONTEND
+            #   value: "true"
+            # - name: TRITON_OPENAI_PORT
+            #   value: "9000"
+
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+            - name: grpc
+              containerPort: 8001
+              protocol: TCP
+            - name: metrics
+              containerPort: 8002
+              protocol: TCP
+            - name: openai
+              containerPort: 9000
+              protocol: TCP
+
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+              # cpu: "8"
+              # memory: "32Gi"
+            # requests:
+            #   cpu: "2"
+            #   memory: "16Gi"
+
+          volumeMounts:
+            - name: triton-models
+              mountPath: /models
+
+          # ── Probes ──
+          # startupProbe gates liveness/readiness until the pod is ready.
+          # Budget: 60 failures * 10s = 600s (10 min) covers warm starts
+          # including ephemeral cache rebuild (~3-4 min for backend setup
+          # and OpenAI deps install). For cold starts (first-time model
+          # download of ~7.5 GB), increase failureThreshold to 120 (20 min).
+          startupProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 60
+
+          readinessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
