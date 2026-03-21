@@ -3,10 +3,11 @@ schema-version = "1.10.0"
 
 [install]
 # triton-specific packages
-triton-server.pkg-path = "flox/triton-server"
-triton-server.version = "2.66.0+6f6f408"		## latest
-triton-server.systems = ["x86_64-linux"]
-triton-server.pkg-group = "triton-server"
+triton-server.store-path = "/nix/store/lgsg2f9i5v88kaflxprrds1qpwwsbjrd-triton-server-2.66.0+1bbd781"
+#triton-server.pkg-path = "flox/triton-server"
+#triton-server.version = "2.66.0+6f6f408"		## latest
+#triton-server.systems = ["x86_64-linux"]
+#triton-server.pkg-group = "triton-server"
 triton-server.priority = 0
 triton-python-backend.pkg-path = "flox/triton-python-backend"
 triton-python-backend.systems = ["x86_64-linux"]
@@ -46,6 +47,7 @@ iproute2.systems = ["x86_64-linux"]
 iproute2.outputs = "all"
 uv.pkg-path = "uv"
 coreutils.pkg-path = "coreutils"
+coreutils.priority = 7
 gnutar.pkg-path = "gnutar"
 gawk.pkg-path = "gawk"
 python3.pkg-path = "python3"
@@ -62,6 +64,7 @@ on-activate = '''
   #   TRITON_MODEL=my_model flox activate --start-services
   export TRITON_MODEL="${TRITON_MODEL:-phi3_5_mini_instruct_awq}"
   export TRITON_OPENAI_FRONTEND="${TRITON_OPENAI_FRONTEND:-true}"
+  export TRITON_DEFAULT_MAX_TOKENS="${TRITON_DEFAULT_MAX_TOKENS:-1024}"
 
   triton-setup-backends
   export TRITON_BACKEND_DIR="$FLOX_ENV_CACHE/backends"
@@ -156,7 +159,7 @@ COMPATEOF
 
 
 [services]
-tritonserver.command = "triton-resolve-model && triton-serve"
+tritonserver.command = "triton-preflight && triton-resolve-model && triton-serve"
 
 
 [options]
