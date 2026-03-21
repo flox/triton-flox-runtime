@@ -13,6 +13,7 @@
 #
 # Optional env:
 #   TRITON_VLLM_CONFIG        JSON string merged on top of package defaults
+#   TRITON_MAX_TOKENS         Hard cap on max_new_tokens (via override_generation_config)
 
 set -euo pipefail
 
@@ -32,6 +33,7 @@ TRITON_MODEL_REPOSITORY="${TRITON_MODEL_REPOSITORY:-}"
 # Note: cannot use ${VAR:-{}} — bash parses the first } as closing ${}, leaving a trailing }.
 TRITON_VLLM_CONFIG="${TRITON_VLLM_CONFIG:-}"
 [[ -n "$TRITON_VLLM_CONFIG" ]] || TRITON_VLLM_CONFIG='{}'
+TRITON_MAX_TOKENS="${TRITON_MAX_TOKENS:-}"
 
 if [[ -z "$TRITON_MODEL_REPOSITORY" ]]; then
   lib::warn "triton-generate-vllm-config: TRITON_MODEL_REPOSITORY is unset; skipping"
@@ -68,8 +70,15 @@ defaults = json.load(open(sys.argv[1]))
 overrides = json.loads(sys.argv[2])
 defaults.update(overrides)
 defaults["model"] = sys.argv[3]
+max_tokens = sys.argv[4] if len(sys.argv) > 4 else ""
+if max_tokens:
+    ogc = defaults.get("override_generation_config", {})
+    if isinstance(ogc, str):
+        ogc = json.loads(ogc)
+    ogc["max_new_tokens"] = int(max_tokens)
+    defaults["override_generation_config"] = ogc
 json.dump(defaults, sys.stdout, indent=2)
-' "$defaults_file" "$TRITON_VLLM_CONFIG" "$weights_path")" || {
+' "$defaults_file" "$TRITON_VLLM_CONFIG" "$weights_path" "$TRITON_MAX_TOKENS")" || {
     lib::warn "triton-generate-vllm-config: ${model_name}: failed to generate JSON; skipping"
     continue
   }
@@ -92,6 +101,9 @@ json.dump(defaults, sys.stdout, indent=2)
   printf '%s\n' "$final_json" > "$version_dir/model.json"
   printf '%s' "$new_hash" > "$hash_file"
   lib::log "triton-generate-vllm-config: ${model_name}: generated 1/model.json"
+  if [[ -n "$TRITON_MAX_TOKENS" ]]; then
+    lib::log "triton-generate-vllm-config: ${model_name}: max_tokens cap = $TRITON_MAX_TOKENS"
+  fi
   _generated=$((_generated + 1))
 done
 

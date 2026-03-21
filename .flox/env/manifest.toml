@@ -65,6 +65,7 @@ on-activate = '''
   export TRITON_MODEL="${TRITON_MODEL:-phi3_5_mini_instruct_awq}"
   export TRITON_OPENAI_FRONTEND="${TRITON_OPENAI_FRONTEND:-true}"
   export TRITON_DEFAULT_MAX_TOKENS="${TRITON_DEFAULT_MAX_TOKENS:-1024}"
+  export TRITON_MAX_TOKENS="${TRITON_MAX_TOKENS:-1024}"
 
   triton-setup-backends
   export TRITON_BACKEND_DIR="$FLOX_ENV_CACHE/backends"
