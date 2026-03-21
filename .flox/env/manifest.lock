@@ -6,6 +6,15 @@
       "bats": {
         "pkg-path": "bats"
       },
+      "coreutils": {
+        "pkg-path": "coreutils"
+      },
+      "gawk": {
+        "pkg-path": "gawk"
+      },
+      "gnutar": {
+        "pkg-path": "gnutar"
+      },
       "iproute2": {
         "pkg-path": "iproute2",
         "systems": [
@@ -21,6 +30,9 @@
           "x86_64-linux"
         ],
         "outputs": "all"
+      },
+      "python3": {
+        "pkg-path": "python3"
       },
       "shellcheck": {
         "pkg-path": "shellcheck",
@@ -61,7 +73,8 @@
       "triton-server": {
         "pkg-path": "flox/triton-server",
         "pkg-group": "triton-server",
-        "version": "2.66.0+b0b0556",
+        "priority": 0,
+        "version": "2.66.0+6f6f408",
         "systems": [
           "x86_64-linux"
         ]
@@ -124,7 +137,7 @@
       "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
       "rev_count": 953160,
       "rev_date": "2026-02-23T12:05:20Z",
-      "scrape_date": "2026-03-15T00:17:45.291202245Z",
+      "scrape_date": "2026-03-21T00:33:51.022442989Z",
       "stabilities": [
         "unstable",
         "staging",
@@ -156,7 +169,7 @@
       "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
       "rev_count": 953160,
       "rev_date": "2026-02-23T12:05:20Z",
-      "scrape_date": "2026-03-15T00:17:45.291208715Z",
+      "scrape_date": "2026-03-21T00:33:51.022448878Z",
       "stabilities": [
         "unstable",
         "staging",
@@ -300,6 +313,418 @@
       "priority": 5
     },
     {
+      "attr_path": "coreutils",
+      "broken": false,
+      "derivation": "/nix/store/ki7b5j32k38fgar7gwxasqzj99yd2hba-coreutils-9.10.drv",
+      "description": "GNU Core Utilities",
+      "install_id": "coreutils",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "coreutils-9.10",
+      "pname": "coreutils",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T04:46:01.985362Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "9.10",
+      "outputs_to_install": [
+        "out",
+        "out",
+        "out",
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/ii63jgwmxd4l9nyyaqh8vbynsf2z8yms-coreutils-9.10-info",
+        "out": "/nix/store/chdj76m79c3lbwdn6bflwlqa2n2igx02-coreutils-9.10"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "coreutils",
+      "broken": false,
+      "derivation": "/nix/store/jm5r3lsz9yhsj37xah2c4xljf7dqd4vi-coreutils-9.10.drv",
+      "description": "GNU Core Utilities",
+      "install_id": "coreutils",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "coreutils-9.10",
+      "pname": "coreutils",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T05:24:01.512082Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "9.10",
+      "outputs_to_install": [
+        "out",
+        "out",
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "debug": "/nix/store/lz1kz2f87h7nk72m6nbpj9hvdhm6n9kx-coreutils-9.10-debug",
+        "info": "/nix/store/1gxsl7ihgazpmjzyx1x8g1s7nqnlyq8l-coreutils-9.10-info",
+        "out": "/nix/store/jp7xqawrs8pjdn3v2qxrgrn6cc7siij2-coreutils-9.10"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "coreutils",
+      "broken": false,
+      "derivation": "/nix/store/r5yjaxpzd76wkg8pxi8x0cz5m7vqs9ik-coreutils-9.10.drv",
+      "description": "GNU Core Utilities",
+      "install_id": "coreutils",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "coreutils-9.10",
+      "pname": "coreutils",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T06:09:08.563766Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "9.10",
+      "outputs_to_install": [
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/1b97xw6piazc1frnkrzalfc4g7n87ncs-coreutils-9.10-info",
+        "out": "/nix/store/xfwwgxfk71g0vkl2k2ggki8s5mgc4ki4-coreutils-9.10"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "coreutils",
+      "broken": false,
+      "derivation": "/nix/store/bl552s9nw613lkzc4rmw3svpdwp1ib68-coreutils-9.10.drv",
+      "description": "GNU Core Utilities",
+      "install_id": "coreutils",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "coreutils-9.10",
+      "pname": "coreutils",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T07:00:10.131388Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "9.10",
+      "outputs_to_install": [
+        "out",
+        "out",
+        "out",
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "debug": "/nix/store/8mcpc2yx37lqpp3id4966iarglcb7z42-coreutils-9.10-debug",
+        "info": "/nix/store/m4v3w2kchwa6wkv1sdnqqji096byxxkp-coreutils-9.10-info",
+        "out": "/nix/store/hlxw2q9qansq7bn52xvlb5badw3z1v8s-coreutils-9.10"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gawk",
+      "broken": false,
+      "derivation": "/nix/store/q9gz421m81hba2xg9ri2s654dwz2d261-gawk-5.3.2.drv",
+      "description": "GNU implementation of the Awk programming language",
+      "install_id": "gawk",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "gawk-5.3.2",
+      "pname": "gawk",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T04:46:02.726314Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "5.3.2",
+      "outputs_to_install": [
+        "man",
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/vnkda3s1k92l12i0y5s5b79sfa54hf0f-gawk-5.3.2-info",
+        "man": "/nix/store/0jg0bzpwz6y4xafyp38h416izywlb8xf-gawk-5.3.2-man",
+        "out": "/nix/store/i45ysli6zxj414lyyyhrl19ir3jkfdna-gawk-5.3.2"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gawk",
+      "broken": false,
+      "derivation": "/nix/store/96rkbd00ya6vncr94w8gbrml0lz5n0h6-gawk-5.3.2.drv",
+      "description": "GNU implementation of the Awk programming language",
+      "install_id": "gawk",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "gawk-5.3.2",
+      "pname": "gawk",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T05:24:02.545942Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "5.3.2",
+      "outputs_to_install": [
+        "man",
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/sf4zndi34p0dw19f59xngvkrd6hn8ijf-gawk-5.3.2-info",
+        "man": "/nix/store/3c5fpccgnamjqrcisk96wh3rn8rah7sy-gawk-5.3.2-man",
+        "out": "/nix/store/qpwv1hmkp9vymmha4gdnykl4n1ifv8ps-gawk-5.3.2"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gawk",
+      "broken": false,
+      "derivation": "/nix/store/yf0l86l8by5rzrx3b8q6r35knxcgf2by-gawk-5.3.2.drv",
+      "description": "GNU implementation of the Awk programming language",
+      "install_id": "gawk",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "gawk-5.3.2",
+      "pname": "gawk",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T06:09:09.265111Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "5.3.2",
+      "outputs_to_install": [
+        "man",
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/3z72z4hbg3i9lz3iphcmhxdz6wlqcg1v-gawk-5.3.2-info",
+        "man": "/nix/store/5jkkfimjng43yn73k8mwv32jpjszap4a-gawk-5.3.2-man",
+        "out": "/nix/store/yczwwabipnm3w110fma9dimzfr8r795q-gawk-5.3.2"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gawk",
+      "broken": false,
+      "derivation": "/nix/store/aihn2bgjx2cawvqbkqx5gvs3936savij-gawk-5.3.2.drv",
+      "description": "GNU implementation of the Awk programming language",
+      "install_id": "gawk",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "gawk-5.3.2",
+      "pname": "gawk",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T07:00:11.383163Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "5.3.2",
+      "outputs_to_install": [
+        "man",
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/9p12f1sij4w65j35ssikl7zvlnh8kd2f-gawk-5.3.2-info",
+        "man": "/nix/store/c1gd6m4r3wa9ydvdg1xqvdkbsksmsp67-gawk-5.3.2-man",
+        "out": "/nix/store/gf7b4yz4vhd0y2hnnrimhh875ghwzzzj-gawk-5.3.2"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gnutar",
+      "broken": false,
+      "derivation": "/nix/store/jrvr6cknqjfkvzh01lfbr3qjpb7hcdrm-gnutar-1.35.drv",
+      "description": "GNU implementation of the `tar' archiver",
+      "install_id": "gnutar",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "gnutar-1.35",
+      "pname": "gnutar",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T04:46:02.937893Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "1.35",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/q0s9g0ainjz53lnnvah70q16yb8myz9n-gnutar-1.35-info",
+        "out": "/nix/store/2q9piicbr4dws7xi4xggb1nqs08k541h-gnutar-1.35"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gnutar",
+      "broken": false,
+      "derivation": "/nix/store/3vy440gy472vm2q8mnadb2cygdp4q03m-gnutar-1.35.drv",
+      "description": "GNU implementation of the `tar' archiver",
+      "install_id": "gnutar",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "gnutar-1.35",
+      "pname": "gnutar",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T05:24:03.276455Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "1.35",
+      "outputs_to_install": [
+        "out",
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/qk04ikjw68667pxvcsjrglm776zv8xwc-gnutar-1.35-info",
+        "out": "/nix/store/38a04sf2y5cwya45mlx1w6r9pvmcd62r-gnutar-1.35"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gnutar",
+      "broken": false,
+      "derivation": "/nix/store/cfhl0gaf9lcp7krhz2i4h3yin0gkqpqq-gnutar-1.35.drv",
+      "description": "GNU implementation of the `tar' archiver",
+      "install_id": "gnutar",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "gnutar-1.35",
+      "pname": "gnutar",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T06:09:09.511535Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "1.35",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/dqzycxx500sbxp1wg7adrwss019mpxjb-gnutar-1.35-info",
+        "out": "/nix/store/samgjm49sdm33y3bxpafi906jhy8rvnh-gnutar-1.35"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gnutar",
+      "broken": false,
+      "derivation": "/nix/store/8ivyhxjb6q1vw9rasqlcp3m79k6p018h-gnutar-1.35.drv",
+      "description": "GNU implementation of the `tar' archiver",
+      "install_id": "gnutar",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "gnutar-1.35",
+      "pname": "gnutar",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T07:00:12.216288Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "1.35",
+      "outputs_to_install": [
+        "out",
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "info": "/nix/store/6kfl4c99k3i2cz1pkix04786w0983hsy-gnutar-1.35-info",
+        "out": "/nix/store/isva9q9zx3frx6hh6cnpihh1kd2bx6bk-gnutar-1.35"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
       "attr_path": "iproute2",
       "broken": false,
       "derivation": "/nix/store/723fhsmc3ixg2rx52rjbjyhssmqysg0a-iproute2-6.18.0.drv",
@@ -327,6 +752,139 @@
         "dev": "/nix/store/wnb7jzdv9qzr8csdrdalf5nss1xh1n0l-iproute2-6.18.0-dev",
         "out": "/nix/store/c9bn9jz0f89hhy5n1m7k4svlb79i33r5-iproute2-6.18.0",
         "scripts": "/nix/store/9bg7pidbd2yyfdd7b1b57g2r08hv94cw-iproute2-6.18.0-scripts"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "python3",
+      "broken": false,
+      "derivation": "/nix/store/a97r4r3w7a8rfvd2q3kd11gz6aszg49j-python3-3.13.12.drv",
+      "description": "High-level dynamically-typed programming language",
+      "install_id": "python3",
+      "license": "Python-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "python3-3.13.12",
+      "pname": "python3",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T04:46:41.814670Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "3.13.12",
+      "outputs_to_install": [
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/h2y0a3x6hgznqq54rjszbi2x0rdnlgvb-python3-3.13.12"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "python3",
+      "broken": false,
+      "derivation": "/nix/store/w2lfkd781k4a5jx7fbmk7b59kbhjvlpl-python3-3.13.12.drv",
+      "description": "High-level dynamically-typed programming language",
+      "install_id": "python3",
+      "license": "Python-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "python3-3.13.12",
+      "pname": "python3",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T05:24:58.548340Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "3.13.12",
+      "outputs_to_install": [
+        "out",
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "debug": "/nix/store/09i7jzzkrzl2hd2dlxgl8r2rxb7v0b72-python3-3.13.12-debug",
+        "out": "/nix/store/jbxc3f1gbnnx5wwhby9z56w95k44n0sw-python3-3.13.12"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "python3",
+      "broken": false,
+      "derivation": "/nix/store/yv8wl1gj37iaisz89x1n9r1gj4ynlvpz-python3-3.13.12.drv",
+      "description": "High-level dynamically-typed programming language",
+      "install_id": "python3",
+      "license": "Python-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "python3-3.13.12",
+      "pname": "python3",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T06:09:47.680026Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "3.13.12",
+      "outputs_to_install": [
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/6lx7vd1lf0dsx5prsc915h0ibr1i7mci-python3-3.13.12"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "python3",
+      "broken": false,
+      "derivation": "/nix/store/s2h0lp0m59cpragags7p355hhj7vrh1s-python3-3.13.12.drv",
+      "description": "High-level dynamically-typed programming language",
+      "install_id": "python3",
+      "license": "Python-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=2fc6539b481e1d2569f25f8799236694180c0993",
+      "name": "python3-3.13.12",
+      "pname": "python3",
+      "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+      "rev_count": 953160,
+      "rev_date": "2026-02-23T12:05:20Z",
+      "scrape_date": "2026-02-25T07:01:14.558961Z",
+      "stabilities": [
+        "unstable",
+        "staging",
+        "stable"
+      ],
+      "unfree": false,
+      "version": "3.13.12",
+      "outputs_to_install": [
+        "out",
+        "out",
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "debug": "/nix/store/9bwcfcgqklihjs89b0qfjlpl4wlbflkd-python3-3.13.12-debug",
+        "out": "/nix/store/m1fw8l8y9ycxh5dzispbb7cwl6rra14l-python3-3.13.12"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
@@ -489,7 +1047,7 @@
       "rev": "c3da7fb40018681c0918a1d4c08ed248a919e5df",
       "rev_count": 24,
       "rev_date": "2026-03-12T00:06:21Z",
-      "scrape_date": "2026-03-15T00:18:44.238695345Z",
+      "scrape_date": "2026-03-21T00:51:23.754229016Z",
       "stabilities": [
         "unstable",
         "staging",
@@ -520,7 +1078,7 @@
       "rev": "c3da7fb40018681c0918a1d4c08ed248a919e5df",
       "rev_count": 24,
       "rev_date": "2026-03-12T00:06:21Z",
-      "scrape_date": "2026-03-15T00:18:44.238696296Z",
+      "scrape_date": "2026-03-21T00:51:23.754229467Z",
       "stabilities": [
         "unstable",
         "staging",
@@ -551,7 +1109,7 @@
       "rev": "c3da7fb40018681c0918a1d4c08ed248a919e5df",
       "rev_count": 24,
       "rev_date": "2026-03-12T00:06:21Z",
-      "scrape_date": "2026-03-15T00:18:44.238697779Z",
+      "scrape_date": "2026-03-21T00:51:23.754230138Z",
       "stabilities": [
         "unstable",
         "staging",
@@ -738,20 +1296,19 @@
     {
       "attr_path": "python3Packages.torch",
       "broken": false,
-      "derivation": "/nix/store/nwm0rchw4093kvqlms11y1aairir5764-python3.13-torch-2.10.0.drv",
+      "derivation": "/nix/store/f6sznzjiigy3kzqgki5vwikp4yn3wq2l-python3.13-torch-2.10.0.drv",
       "description": "PyTorch: Tensors and Dynamic neural networks in Python with strong GPU acceleration",
       "install_id": "torch",
       "license": "BSD-3-Clause",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=80bdc1e5ce51f56b19791b52b2901187931f5353",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=b40629efe5d6ec48dd1efba650c797ddbd39ace0",
       "name": "python3.13-torch-2.10.0",
       "pname": "torchWithCuda",
-      "rev": "80bdc1e5ce51f56b19791b52b2901187931f5353",
-      "rev_count": 958232,
-      "rev_date": "2026-03-04T11:34:51Z",
-      "scrape_date": "2026-03-15T00:17:45.291266111Z",
+      "rev": "b40629efe5d6ec48dd1efba650c797ddbd39ace0",
+      "rev_count": 964859,
+      "rev_date": "2026-03-18T08:17:15Z",
+      "scrape_date": "2026-03-21T00:33:51.022500866Z",
       "stabilities": [
-        "unstable",
-        "staging"
+        "unstable"
       ],
       "unfree": false,
       "version": "python3.13-torch-2.10.0",
@@ -759,11 +1316,11 @@
         "out"
       ],
       "outputs": {
-        "cxxdev": "/nix/store/bx586ggq829y187fsplqz714rnc62vfp-python3.13-torch-2.10.0-cxxdev",
-        "dev": "/nix/store/zhdrxf05gvq2z9hf5sm3ljvfk83pk85z-python3.13-torch-2.10.0-dev",
-        "dist": "/nix/store/v8g8smg770x35hf741kxrqjx6rxkc1z8-python3.13-torch-2.10.0-dist",
-        "lib": "/nix/store/qhj37yv8rl6qsp4d9axrjajiffbzb0sg-python3.13-torch-2.10.0-lib",
-        "out": "/nix/store/fcca5sw5xzwhhszvn7nl0bjky6kvbr8j-python3.13-torch-2.10.0"
+        "cxxdev": "/nix/store/hvkfrmpkg4khkmk061z60r10slpdi3vv-python3.13-torch-2.10.0-cxxdev",
+        "dev": "/nix/store/m4s91lxfw92dpp732ikxbn27d96dc8dm-python3.13-torch-2.10.0-dev",
+        "dist": "/nix/store/phcjha0krvq5b1c7si0hi6aml8brma6j-python3.13-torch-2.10.0-dist",
+        "lib": "/nix/store/43cisj0w4q0ljrs2haqk659w80a7ldw9-python3.13-torch-2.10.0-lib",
+        "out": "/nix/store/6f22fbjq9zp484k2nvqlh4pijbd9qyay-python3.13-torch-2.10.0"
       },
       "system": "aarch64-linux",
       "group": "torch",
@@ -772,20 +1329,19 @@
     {
       "attr_path": "python3Packages.torch",
       "broken": false,
-      "derivation": "/nix/store/2kbx0idfiaq5dj6ds3nj8bv3fgf173vf-python3.13-torch-2.10.0.drv",
+      "derivation": "/nix/store/ciq7fnrq0m3511k02ljdzw81998zqhjp-python3.13-torch-2.10.0.drv",
       "description": "PyTorch: Tensors and Dynamic neural networks in Python with strong GPU acceleration",
       "install_id": "torch",
       "license": "BSD-3-Clause",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=80bdc1e5ce51f56b19791b52b2901187931f5353",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=b40629efe5d6ec48dd1efba650c797ddbd39ace0",
       "name": "python3.13-torch-2.10.0",
       "pname": "torchWithCuda",
-      "rev": "80bdc1e5ce51f56b19791b52b2901187931f5353",
-      "rev_count": 958232,
-      "rev_date": "2026-03-04T11:34:51Z",
-      "scrape_date": "2026-03-15T00:17:45.291267483Z",
+      "rev": "b40629efe5d6ec48dd1efba650c797ddbd39ace0",
+      "rev_count": 964859,
+      "rev_date": "2026-03-18T08:17:15Z",
+      "scrape_date": "2026-03-21T00:33:51.022502619Z",
       "stabilities": [
-        "unstable",
-        "staging"
+        "unstable"
       ],
       "unfree": false,
       "version": "python3.13-torch-2.10.0",
@@ -793,11 +1349,11 @@
         "out"
       ],
       "outputs": {
-        "cxxdev": "/nix/store/jr9vdkd936d8qb2r0mcpdi5f5ibhb0v6-python3.13-torch-2.10.0-cxxdev",
-        "dev": "/nix/store/gpjc38p1lb5jibib6mzz1hxrd60h212w-python3.13-torch-2.10.0-dev",
-        "dist": "/nix/store/zs3dvq0v52674zrc9nlgm0z3s2ysq4ab-python3.13-torch-2.10.0-dist",
-        "lib": "/nix/store/s5x8dmjajixh6ar9mlsw5y13qg9absyz-python3.13-torch-2.10.0-lib",
-        "out": "/nix/store/0l4jhb8g6ygwnhiivv8i14xnlj7y4lw2-python3.13-torch-2.10.0"
+        "cxxdev": "/nix/store/h0sn82knp368hchayrk217ppd7vnz9mg-python3.13-torch-2.10.0-cxxdev",
+        "dev": "/nix/store/h7f28kvzn22hsvk7jjxmb957kd9j02d8-python3.13-torch-2.10.0-dev",
+        "dist": "/nix/store/3b8sax21p3xcq0pkzipq5nkxlzvhq3g5-python3.13-torch-2.10.0-dist",
+        "lib": "/nix/store/7d0npkhplyv53l0rf0rsy7cg7dp6ws64-python3.13-torch-2.10.0-lib",
+        "out": "/nix/store/wn5nrcilkgnyfiyp2c1lmggk3a277kl6-python3.13-torch-2.10.0"
       },
       "system": "x86_64-linux",
       "group": "torch",
@@ -806,20 +1362,19 @@
     {
       "attr_path": "python3Packages.transformers",
       "broken": false,
-      "derivation": "/nix/store/5c8kxn5rn9x3zcysc3z16pv2dmmrfzil-python3.13-transformers-5.3.0.drv",
+      "derivation": "/nix/store/ys3b4blxyk2j231z83nnmc08lxawwycp-python3.13-transformers-5.3.0.drv",
       "description": "Natural Language Processing for TensorFlow 2.0 and PyTorch",
       "install_id": "transformers",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=62dc67aa6a52b4364dd75994ec00b51fbf474e50",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=b40629efe5d6ec48dd1efba650c797ddbd39ace0",
       "name": "python3.13-transformers-5.3.0",
       "pname": "transformers",
-      "rev": "62dc67aa6a52b4364dd75994ec00b51fbf474e50",
-      "rev_count": 961274,
-      "rev_date": "2026-03-10T06:05:22Z",
-      "scrape_date": "2026-03-15T00:17:45.291271259Z",
+      "rev": "b40629efe5d6ec48dd1efba650c797ddbd39ace0",
+      "rev_count": 964859,
+      "rev_date": "2026-03-18T08:17:15Z",
+      "scrape_date": "2026-03-21T00:33:51.022507226Z",
       "stabilities": [
-        "unstable",
-        "staging"
+        "unstable"
       ],
       "unfree": false,
       "version": "5.3.0",
@@ -827,8 +1382,8 @@
         "out"
       ],
       "outputs": {
-        "dist": "/nix/store/f1p99nlcrq2bj3izi0v7cawbxij8c3mp-python3.13-transformers-5.3.0-dist",
-        "out": "/nix/store/0vk3icrzk371g11b4av1vcxglpc2vsqf-python3.13-transformers-5.3.0"
+        "dist": "/nix/store/yr8b8a6jc3qzgymvr3n6y7r6px2b4cav-python3.13-transformers-5.3.0-dist",
+        "out": "/nix/store/bszdxm5v4h28nxii2f58snz2rwraqprv-python3.13-transformers-5.3.0"
       },
       "system": "aarch64-linux",
       "group": "transformers",
@@ -837,20 +1392,19 @@
     {
       "attr_path": "python3Packages.transformers",
       "broken": false,
-      "derivation": "/nix/store/ql7d37jp7wj83rx04y0b89bgfszdpqh8-python3.13-transformers-5.3.0.drv",
+      "derivation": "/nix/store/d95rcg583cjjbhpk8n5zqjw83nwqan09-python3.13-transformers-5.3.0.drv",
       "description": "Natural Language Processing for TensorFlow 2.0 and PyTorch",
       "install_id": "transformers",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=62dc67aa6a52b4364dd75994ec00b51fbf474e50",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=b40629efe5d6ec48dd1efba650c797ddbd39ace0",
       "name": "python3.13-transformers-5.3.0",
       "pname": "transformers",
-      "rev": "62dc67aa6a52b4364dd75994ec00b51fbf474e50",
-      "rev_count": 961274,
-      "rev_date": "2026-03-10T06:05:22Z",
-      "scrape_date": "2026-03-15T00:17:45.291272290Z",
+      "rev": "b40629efe5d6ec48dd1efba650c797ddbd39ace0",
+      "rev_count": 964859,
+      "rev_date": "2026-03-18T08:17:15Z",
+      "scrape_date": "2026-03-21T00:33:51.022508327Z",
       "stabilities": [
-        "unstable",
-        "staging"
+        "unstable"
       ],
       "unfree": false,
       "version": "5.3.0",
@@ -858,8 +1412,8 @@
         "out"
       ],
       "outputs": {
-        "dist": "/nix/store/fyh83lf84wyizx2gcwplcbkmshs8axpj-python3.13-transformers-5.3.0-dist",
-        "out": "/nix/store/clq874zhyrxaziwpfpzy9wp4njb1wc0l-python3.13-transformers-5.3.0"
+        "dist": "/nix/store/6xd4x3ldn1mxq9q0kn2iykhybhqviwvy-python3.13-transformers-5.3.0-dist",
+        "out": "/nix/store/02p1z00l6ca5kq720xaxkv9p6yz68igk-python3.13-transformers-5.3.0"
       },
       "system": "x86_64-linux",
       "group": "transformers",
@@ -868,50 +1422,49 @@
     {
       "attr_path": "triton-server",
       "broken": false,
-      "derivation": "/nix/store/af31zv91ibrna29wxhlgl0wnkhjvpdj2-triton-server-2.66.0+b0b0556.drv",
+      "derivation": "/nix/store/ywh1bflcd59i6qvwhzs71d7dbd6xqn7m-triton-server-2.66.0+6f6f408.drv",
       "description": "NVIDIA Triton Inference Server",
       "install_id": "triton-server",
       "license": "BSD-3-Clause",
-      "locked_url": "git@github.com:barstoolbluz/build-triton-server.git?rev=6f259c9fa5f805d273eeaf5f2c418d4bf28fd611",
-      "name": "triton-server-2.66.0+b0b0556",
+      "locked_url": "git@github.com:flox/nvidia-triton-server.git?rev=98d5772d87e68911a1581e6f0e19d2f3b7ee47aa",
+      "name": "triton-server-2.66.0+6f6f408",
       "pname": "triton-server",
-      "rev": "6f259c9fa5f805d273eeaf5f2c418d4bf28fd611",
-      "rev_count": 59,
-      "rev_date": "2026-03-14T23:48:03Z",
-      "scrape_date": "2026-03-15T00:23:39.368262628Z",
+      "rev": "98d5772d87e68911a1581e6f0e19d2f3b7ee47aa",
+      "rev_count": 62,
+      "rev_date": "2026-03-21T00:26:49Z",
+      "scrape_date": "2026-03-21T00:33:51.022512473Z",
       "stabilities": [
         "unstable",
         "staging"
       ],
       "unfree": false,
-      "version": "2.66.0+b0b0556",
+      "version": "2.66.0+6f6f408",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/grx3m8afpa481dblgsxgdglikxj2g4c0-triton-server-2.66.0+b0b0556"
+        "out": "/nix/store/kgjif8gp2ydvfiass9lgchishlakypmc-triton-server-2.66.0+6f6f408"
       },
       "system": "x86_64-linux",
       "group": "triton-server",
-      "priority": 5
+      "priority": 0
     },
     {
       "attr_path": "python3Packages.vllm",
       "broken": false,
-      "derivation": "/nix/store/fqdp4apjkax7xpkkldi1wkbl8n80jasi-python3.13-vllm-0.16.0.drv",
+      "derivation": "/nix/store/9079pc2ynjrmggc8ys5rkx6wgwbynkyx-python3.13-vllm-0.16.0.drv",
       "description": "High-throughput and memory-efficient inference and serving engine for LLMs",
       "install_id": "vllm",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=62dc67aa6a52b4364dd75994ec00b51fbf474e50",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=b40629efe5d6ec48dd1efba650c797ddbd39ace0",
       "name": "python3.13-vllm-0.16.0",
       "pname": "vllm",
-      "rev": "62dc67aa6a52b4364dd75994ec00b51fbf474e50",
-      "rev_count": 961274,
-      "rev_date": "2026-03-10T06:05:22Z",
-      "scrape_date": "2026-03-15T00:17:45.291283056Z",
+      "rev": "b40629efe5d6ec48dd1efba650c797ddbd39ace0",
+      "rev_count": 964859,
+      "rev_date": "2026-03-18T08:17:15Z",
+      "scrape_date": "2026-03-21T00:33:51.022515468Z",
       "stabilities": [
-        "unstable",
-        "staging"
+        "unstable"
       ],
       "unfree": false,
       "version": "0.16.0",
@@ -919,8 +1472,8 @@
         "out"
       ],
       "outputs": {
-        "dist": "/nix/store/zknn0yvj06kgz78n2s9lknlmmvlqf3n1-python3.13-vllm-0.16.0-dist",
-        "out": "/nix/store/bl3ckvppbg81k2g6j2v3hymzwq2v93dx-python3.13-vllm-0.16.0"
+        "dist": "/nix/store/lzplnfai36dcvhgfpggmsik2v087grwl-python3.13-vllm-0.16.0-dist",
+        "out": "/nix/store/cicm9njani8ylxr9ws171v0zriax1cyk-python3.13-vllm-0.16.0"
       },
       "system": "x86_64-linux",
       "group": "vllm",
@@ -937,7 +1490,7 @@
       "rev": "fa2ef3e6e5fbe95bf0acb8a597b2057a6d0b0685",
       "rev_count": 15,
       "rev_date": "2026-03-19T22:15:33Z",
-      "scrape_date": "2026-03-19T22:38:23.513717872Z",
+      "scrape_date": "2026-03-21T00:33:51.022518032Z",
       "stabilities": [
         "unstable"
       ],

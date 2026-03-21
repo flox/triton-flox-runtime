@@ -2,10 +2,12 @@ schema-version = "1.10.0"
 
 
 [install]
+# triton-specific packages
 triton-server.pkg-path = "flox/triton-server"
-triton-server.version = "2.66.0+b0b0556"		## latest
+triton-server.version = "2.66.0+6f6f408"		## latest
 triton-server.systems = ["x86_64-linux"]
 triton-server.pkg-group = "triton-server"
+triton-server.priority = 0
 triton-python-backend.pkg-path = "flox/triton-python-backend"
 triton-python-backend.systems = ["x86_64-linux"]
 triton-python-backend.priority = 4
@@ -15,6 +17,7 @@ triton-onnxruntime-backend.priority = 5
 triton-tensorrt-backend.pkg-path = "flox/triton-tensorrt-backend"
 triton-tensorrt-backend.systems = ["x86_64-linux"]
 triton-tensorrt-backend.priority = 6
+
 ## other required deps
 shellcheck.pkg-path = "shellcheck"
 shellcheck.outputs = "all"
@@ -42,6 +45,10 @@ iproute2.pkg-path = "iproute2"
 iproute2.systems = ["x86_64-linux"]
 iproute2.outputs = "all"
 uv.pkg-path = "uv"
+coreutils.pkg-path = "coreutils"
+gnutar.pkg-path = "gnutar"
+gawk.pkg-path = "gawk"
+python3.pkg-path = "python3"
 
 # example model for model serving; delete or uncomment not to use
 vllm-phi-3-5-mini-instruct-awq.pkg-path = "flox/vllm-phi-3-5-mini-instruct-awq"
