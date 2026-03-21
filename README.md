@@ -269,9 +269,28 @@ TRITON_HTTP_PORT=9000 TRITON_LOG_VERBOSE=1 flox activate --start-services
 | `TRITON_ALLOW_KILL_OTHER_UID` | `0` | Allow killing tritonserver owned by other UIDs. `0` or `1` |
 | `TRITON_SKIP_GPU_CHECK` | `0` | Skip all GPU checks. `0` or `1` |
 | `TRITON_GPU_WARN_PCT` | `50` | Warn if GPU memory usage exceeds this percentage. Numeric, 0-100 |
+| `TRITON_MAX_GPU_TEMP_C` | `85` | Hard-fail if GPU temperature exceeds this (Celsius). Integer, >= 1 |
+| `TRITON_MAX_GPU_UTIL_PCT` | `95` | Hard-fail if GPU utilization exceeds this percentage. Integer, 0-100 |
+| `TRITON_GPU_FAIL_ON` | `temperature` | Comma-separated list of conditions that trigger hard failure: `temperature`, `memory`, `utilization` |
 | `TRITON_TERM_GRACE` | `3` | Seconds to wait after SIGTERM before SIGKILL. Numeric, >= 0 |
 | `TRITON_PORT_FREE_TIMEOUT` | `10` | Seconds to wait for ports to free after killing. Numeric, >= 0 |
-| `TRITON_PREFLIGHT_LOCKFILE` | `/tmp/triton-preflight.lock` | Lock file path |
+| `TRITON_PREFLIGHT_LOCKFILE` | _(auto-resolved)_ | Lock file path override (highest priority). Default resolution: `$XDG_RUNTIME_DIR` > `/run/user/$UID` > `$TMPDIR/triton-preflight/$UID` |
+| `TRITON_PREFLIGHT_LOCKDIR` | _(unset)_ | Lock directory override (keyed lockfile placed inside) |
+| `TRITON_LOCK_SCOPE` | `lifetime` | Lock scope: `lifetime` (holds across exec) or `preflight` (release before exec) |
+| `TRITON_CHECK_ONLY` | `0` | Validation + reporting only; no signals, no exec. `0` or `1` |
+| `TRITON_PRINT_CMD` | `0` | Print downstream argv to stderr (redacted). `0` or `1` |
+
+### Serve settings
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TRITON_SERVE_RUN_PREFLIGHT` | `true` | Run triton-preflight before launch. Boolean |
+| `TRITON_SERVE_PREFLIGHT_BIN` | _(auto-resolved)_ | Override preflight binary path. Default: sibling `triton-preflight` or PATH lookup |
+| `TRITON_SERVE_LOG_CONFIG` | `true` | Emit effective config summary to stderr at startup. Boolean |
+| `TRITON_SERVE_WAIT_FOR_READY` | `false` | Wait for server readiness before returning foreground control. Boolean |
+| `TRITON_SERVE_READY_TIMEOUT` | `30` | Readiness wait timeout in seconds. Numeric, > 0 |
+| `TRITON_SERVE_READY_INTERVAL` | `0.5` | Readiness poll interval in seconds. Numeric, > 0 |
+| `TRITON_SERVE_READY_URL` | _(auto-derived)_ | Override readiness probe URL. Default: derived from `TRITON_HOST` and `TRITON_HTTP_PORT` |
 
 ### Resolve settings
 
@@ -517,13 +536,18 @@ In dry-run mode (`TRITON_DRY_RUN=1`), exit code `5` cannot occur since no proces
 
 ### GPU health check
 
-Runs after port reclaim. Two detection paths:
+Runs after port reclaim. Three-tier detection cascade:
 
-1. **PyTorch** (preferred): If `import torch` succeeds, uses `torch.cuda.is_available()`, `torch.cuda.device_count()`, and `torch.cuda.mem_get_info()` to report per-GPU status. Exits with code 1 if no CUDA GPUs are available.
-2. **nvidia-smi** (fallback): If PyTorch is unavailable but `nvidia-smi` is on PATH, queries GPU name, total memory, and free memory. Soft-skips with a warning on failure.
-3. **Neither available**: Logs a warning and continues.
+1. **NVML** (preferred): Uses ctypes to probe `libcuda.so.1` (CUDA driver) and `libnvidia-ml.so.1` (NVML). No torch dependency — works in any container with the NVIDIA runtime. Reports per-GPU: name, memory, temperature, utilization, performance state, and clock throttle reasons. Hard-fails if the CUDA driver is present but 0 devices are visible (container misconfiguration).
+2. **nvidia-smi** (fallback): If NVML libraries are unavailable but `nvidia-smi` is on PATH, queries the same fields via CSV output.
+3. **Neither available**: Logs a warning and continues without GPU validation.
 
-In all cases, a warning is emitted if any GPU's memory usage exceeds `TRITON_GPU_WARN_PCT` (default 50%).
+Threshold checks apply to all tiers:
+- **Memory**: Warns if usage exceeds `TRITON_GPU_WARN_PCT` (default 50%). Hard-fails if `memory` is in `TRITON_GPU_FAIL_ON`.
+- **Temperature**: Hard-fails if temperature exceeds `TRITON_MAX_GPU_TEMP_C` (default 85) and `temperature` is in `TRITON_GPU_FAIL_ON` (default: yes).
+- **Utilization**: Hard-fails if utilization exceeds `TRITON_MAX_GPU_UTIL_PCT` (default 95) and `utilization` is in `TRITON_GPU_FAIL_ON`.
+
+When `TRITON_PREFLIGHT_JSON=1`, the success payload includes a `gpu_check_source` field (`"nvml"`, `"nvidia-smi"`, or `"skipped"`) and a `gpus` array with per-device data.
 
 ### JSON output mode
 
@@ -532,8 +556,8 @@ When `TRITON_PREFLIGHT_JSON=1`, a single JSON object is printed to stdout. Human
 Examples:
 
 ```json
-{"status":"ok","action":"noop","dry_run":false,"ports":[8000,8001,8002]}
-{"status":"ok","action":"stopped","dry_run":false,"pids":[12345],"ports":[8000,8001,8002]}
+{"status":"ok","action":"noop","ports":[8000,8001,8002],"gpu_check_source":"nvml","gpus":[{"index":0,"name":"NVIDIA H100","memory_total_mib":81559,"memory_free_mib":81048,"temperature_c":34,"utilization_pct":0,"pstate":"P0","clocks_event_reasons_active":"0x0000000000000000","warnings":[]}]}
+{"status":"ok","action":"stopped","dry_run":false,"pids":[12345],"ports":[8000,8001,8002],"gpu_check_source":"nvidia-smi","gpus":[]}
 {"status":"ok","action":"would_stop","dry_run":true,"pids":[12345]}
 ```
 
@@ -550,7 +574,7 @@ triton-preflight -- ./start.sh arg1 arg2
 
 ### Locking
 
-Acquired via `flock` (from `util-linux`, installed in the manifest) on `TRITON_PREFLIGHT_LOCKFILE` (default `/tmp/triton-preflight.lock`) with a 10-second timeout. Prevents concurrent preflight runs from racing. The lockfile is validated: symlinks are rejected, and only regular files are accepted. Port scanning uses `ss` (from `iproute2`, also in the manifest) for fast PID-to-port mapping, with a `/proc/net/tcp` fallback.
+Acquired via `flock` (from `util-linux`, installed in the manifest) on `TRITON_PREFLIGHT_LOCKFILE` (auto-resolved from `$XDG_RUNTIME_DIR`, `/run/user/$UID`, or `$TMPDIR/triton-preflight/$UID`) with a 10-second timeout. Prevents concurrent preflight runs from racing. The lockfile is validated: symlinks are rejected, and only regular files are accepted. Port scanning uses `ss` (from `iproute2`, also in the manifest) for fast PID-to-port mapping, with a `/proc/net/tcp` fallback.
 
 ## Serving (triton-serve)
 
@@ -934,7 +958,7 @@ Verify GPU visibility:
 
 ```bash
 nvidia-smi
-python3 -c "import torch; print(torch.cuda.is_available())"
+python3 -c "import ctypes; ctypes.CDLL('libcuda.so.1')"
 ```
 
 To skip the GPU check entirely:
