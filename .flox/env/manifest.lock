@@ -7,7 +7,8 @@
         "pkg-path": "bats"
       },
       "coreutils": {
-        "pkg-path": "coreutils"
+        "pkg-path": "coreutils",
+        "priority": 7
       },
       "gawk": {
         "pkg-path": "gawk"
@@ -74,7 +75,7 @@
         "pkg-path": "flox/triton-server",
         "pkg-group": "triton-server",
         "priority": 0,
-        "version": "2.66.0+6f6f408",
+        "version": "2.66.0+4ee16e4",
         "systems": [
           "x86_64-linux"
         ]
@@ -113,13 +114,13 @@
       }
     },
     "hook": {
-      "on-activate": "  # Runtime defaults — override at activation time, e.g.:\n  #   TRITON_MODEL=my_model flox activate --start-services\n  export TRITON_MODEL=\"${TRITON_MODEL:-phi3_5_mini_instruct_awq}\"\n  export TRITON_OPENAI_FRONTEND=\"${TRITON_OPENAI_FRONTEND:-true}\"\n\n  triton-setup-backends\n  export TRITON_BACKEND_DIR=\"$FLOX_ENV_CACHE/backends\"\n\n  # CUDA driver stub — isolated dir to avoid host libc conflicts\n  _cuda_stub_dir=\"$FLOX_ENV_CACHE/cuda-driver-stub\"\n  if [[ ! -d \"$_cuda_stub_dir\" ]]; then\n    mkdir -p \"$_cuda_stub_dir\"\n    for _lib in libcuda.so.1 libnvidia-ml.so.1 libnvidia-ptxjitcompiler.so.1; do\n      for _dir in /usr/lib/x86_64-linux-gnu /usr/lib64; do\n        if [[ -e \"$_dir/$_lib\" ]]; then\n          ln -sf \"$_dir/$_lib\" \"$_cuda_stub_dir/$_lib\"\n          break\n        fi\n      done\n    done\n    # PTX JIT compiler — needed for flash attention on older GPUs (e.g. T4/sm75)\n    _nvjit=\"/nix/store/7pj5iv9www8s4jg41q7lmmiiq907z1k3-cuda12.8-libnvjitlink-12.8.93-lib/lib/libnvJitLink.so.12\"\n    if [[ -e \"$_nvjit\" ]]; then\n      ln -sf \"$_nvjit\" \"$_cuda_stub_dir/libnvJitLink.so.12\"\n    fi\n  fi\n  export LD_LIBRARY_PATH=\"${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}$_cuda_stub_dir\"\n\n  # HF model cache (disabled — using Flox-packaged model via store-path)\n  # export HF_HUB_CACHE=\"${HF_HUB_CACHE:-$FLOX_ENV_CACHE/hf-hub}\"\n\n  triton-setup-models\n  export TRITON_MODEL_REPOSITORY=\"${TRITON_MODEL_REPOSITORY:-$FLOX_ENV_CACHE/models}\"\n\n  # Generate model.json for Flox-packaged vLLM models\n  \"$FLOX_ENV_PROJECT/scripts/triton-generate-vllm-config\"\n\n  # Auto-resolve tokenizer for OpenAI chat templates\n  if [[ -n \"${TRITON_MODEL:-}\" ]] && [[ -z \"${TRITON_OPENAI_TOKENIZER:-}\" ]]; then\n    _model_json=\"$TRITON_MODEL_REPOSITORY/$TRITON_MODEL/1/model.json\"\n    if [[ -f \"$_model_json\" ]]; then\n      _hf_model_id=\"$(python3 -c \"import json,sys;print(json.load(open(sys.argv[1])).get('model',''))\" \"$_model_json\" 2>/dev/null || true)\"\n      if [[ -n \"$_hf_model_id\" ]]; then\n        export TRITON_OPENAI_TOKENIZER=\"$_hf_model_id\"\n      fi\n    fi\n    if [[ -z \"${TRITON_OPENAI_TOKENIZER:-}\" ]]; then\n      _tokenizer_dir=\"$TRITON_MODEL_REPOSITORY/$TRITON_MODEL/tokenizer\"\n      if [[ -d \"$_tokenizer_dir\" ]]; then\n        export TRITON_OPENAI_TOKENIZER=\"$(readlink -f \"$_tokenizer_dir\")\"\n      fi\n    fi\n  fi\n\n  # OpenAI frontend dependencies\n  _ts_prefix=\"$(dirname \"$(command -v tritonserver)\")/..\"\n  _openai_main=\"$_ts_prefix/python/openai/main.py\"\n  if [[ -f \"$_openai_main\" ]]; then\n    _openai_reqs=\"$_ts_prefix/python/openai/requirements.txt\"\n    _openai_deps=\"$FLOX_ENV_CACHE/openai-deps\"\n    _openai_sentinel=\"$_openai_deps/.installed-v2\"\n    if [[ ! -f \"$_openai_sentinel\" ]]; then\n      echo \"Installing OpenAI frontend dependencies...\"\n      mkdir -p \"$_openai_deps\"\n      uv pip install --target \"$_openai_deps\" \\\n        -r \"$_openai_reqs\" \\\n        \"$_ts_prefix\"/python/tritonserver-*.whl \\\n        \"$_ts_prefix\"/python/tritonfrontend-*.whl \\\n        2>&1 | tail -1\n      # Remove pip numpy — it shadows the Nix-provided one which has\n      # proper RPATH for libstdc++ (pip manylinux wheel does not).\n      rm -rf \"$_openai_deps\"/numpy{,.libs,*.dist-info}\n      touch \"$_openai_sentinel\"\n    fi\n    export PYTHONPATH=\"${_openai_deps}${PYTHONPATH:+:$PYTHONPATH}\"\n\n    # Patch transformers 5.x compat (all_special_tokens_extended removed)\n    _compat_dir=\"$FLOX_ENV_CACHE/python-compat\"\n    if [[ ! -f \"$_compat_dir/sitecustomize.py\" ]]; then\n      mkdir -p \"$_compat_dir\"\n      cat > \"$_compat_dir/sitecustomize.py\" << 'COMPATEOF'\nimport transformers.tokenization_utils_base as _tub\nif not hasattr(_tub.PreTrainedTokenizerBase, 'all_special_tokens_extended'):\n    @property\n    def _all_special_tokens_extended(self):\n        return list(self.all_special_tokens)\n    _tub.PreTrainedTokenizerBase.all_special_tokens_extended = _all_special_tokens_extended\nCOMPATEOF\n    fi\n    export PYTHONPATH=\"${_compat_dir}:$PYTHONPATH\"\n  fi\n"
+      "on-activate": "  # Runtime defaults — override at activation time, e.g.:\n  #   TRITON_MODEL=my_model flox activate --start-services\n  export TRITON_MODEL=\"${TRITON_MODEL:-phi3_5_mini_instruct_awq}\"\n  export TRITON_OPENAI_FRONTEND=\"${TRITON_OPENAI_FRONTEND:-true}\"\n  export TRITON_DEFAULT_MAX_TOKENS=\"${TRITON_DEFAULT_MAX_TOKENS:-1024}\"\n  export TRITON_MAX_TOKENS=\"${TRITON_MAX_TOKENS:-1024}\"\n\n  triton-setup-backends\n  export TRITON_BACKEND_DIR=\"$FLOX_ENV_CACHE/backends\"\n\n  # CUDA driver stub — isolated dir to avoid host libc conflicts\n  _cuda_stub_dir=\"$FLOX_ENV_CACHE/cuda-driver-stub\"\n  if [[ ! -d \"$_cuda_stub_dir\" ]]; then\n    mkdir -p \"$_cuda_stub_dir\"\n    for _lib in libcuda.so.1 libnvidia-ml.so.1 libnvidia-ptxjitcompiler.so.1; do\n      for _dir in /usr/lib/x86_64-linux-gnu /usr/lib64; do\n        if [[ -e \"$_dir/$_lib\" ]]; then\n          ln -sf \"$_dir/$_lib\" \"$_cuda_stub_dir/$_lib\"\n          break\n        fi\n      done\n    done\n    # PTX JIT compiler — needed for flash attention on older GPUs (e.g. T4/sm75)\n    _nvjit=\"/nix/store/7pj5iv9www8s4jg41q7lmmiiq907z1k3-cuda12.8-libnvjitlink-12.8.93-lib/lib/libnvJitLink.so.12\"\n    if [[ -e \"$_nvjit\" ]]; then\n      ln -sf \"$_nvjit\" \"$_cuda_stub_dir/libnvJitLink.so.12\"\n    fi\n  fi\n  export LD_LIBRARY_PATH=\"${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}$_cuda_stub_dir\"\n\n  # HF model cache (disabled — using Flox-packaged model via store-path)\n  # export HF_HUB_CACHE=\"${HF_HUB_CACHE:-$FLOX_ENV_CACHE/hf-hub}\"\n\n  triton-setup-models\n  export TRITON_MODEL_REPOSITORY=\"${TRITON_MODEL_REPOSITORY:-$FLOX_ENV_CACHE/models}\"\n\n  # Generate model.json for Flox-packaged vLLM models\n  triton-generate-vllm-config\n\n  # Auto-resolve tokenizer for OpenAI chat templates\n  if [[ -n \"${TRITON_MODEL:-}\" ]] && [[ -z \"${TRITON_OPENAI_TOKENIZER:-}\" ]]; then\n    _model_json=\"$TRITON_MODEL_REPOSITORY/$TRITON_MODEL/1/model.json\"\n    if [[ -f \"$_model_json\" ]]; then\n      _hf_model_id=\"$(python3 -c \"import json,sys;print(json.load(open(sys.argv[1])).get('model',''))\" \"$_model_json\" 2>/dev/null || true)\"\n      if [[ -n \"$_hf_model_id\" ]]; then\n        export TRITON_OPENAI_TOKENIZER=\"$_hf_model_id\"\n      fi\n    fi\n    if [[ -z \"${TRITON_OPENAI_TOKENIZER:-}\" ]]; then\n      _tokenizer_dir=\"$TRITON_MODEL_REPOSITORY/$TRITON_MODEL/tokenizer\"\n      if [[ -d \"$_tokenizer_dir\" ]]; then\n        export TRITON_OPENAI_TOKENIZER=\"$(readlink -f \"$_tokenizer_dir\")\"\n      fi\n    fi\n  fi\n\n  # OpenAI frontend dependencies\n  _ts_prefix=\"$(dirname \"$(command -v tritonserver)\")/..\"\n  _openai_main=\"$_ts_prefix/python/openai/main.py\"\n  if [[ -f \"$_openai_main\" ]]; then\n    _openai_reqs=\"$_ts_prefix/python/openai/requirements.txt\"\n    _openai_deps=\"$FLOX_ENV_CACHE/openai-deps\"\n    _openai_sentinel=\"$_openai_deps/.installed-v2\"\n    if [[ ! -f \"$_openai_sentinel\" ]]; then\n      echo \"Installing OpenAI frontend dependencies...\"\n      mkdir -p \"$_openai_deps\"\n      uv pip install --target \"$_openai_deps\" \\\n        -r \"$_openai_reqs\" \\\n        \"$_ts_prefix\"/python/tritonserver-*.whl \\\n        \"$_ts_prefix\"/python/tritonfrontend-*.whl \\\n        2>&1 | tail -1\n      # Remove pip numpy — it shadows the Nix-provided one which has\n      # proper RPATH for libstdc++ (pip manylinux wheel does not).\n      rm -rf \"$_openai_deps\"/numpy{,.libs,*.dist-info}\n      touch \"$_openai_sentinel\"\n    fi\n    export PYTHONPATH=\"${_openai_deps}${PYTHONPATH:+:$PYTHONPATH}\"\n\n    # Patch transformers 5.x compat (all_special_tokens_extended removed)\n    _compat_dir=\"$FLOX_ENV_CACHE/python-compat\"\n    if [[ ! -f \"$_compat_dir/sitecustomize.py\" ]]; then\n      mkdir -p \"$_compat_dir\"\n      cat > \"$_compat_dir/sitecustomize.py\" << 'COMPATEOF'\nimport transformers.tokenization_utils_base as _tub\nif not hasattr(_tub.PreTrainedTokenizerBase, 'all_special_tokens_extended'):\n    @property\n    def _all_special_tokens_extended(self):\n        return list(self.all_special_tokens)\n    _tub.PreTrainedTokenizerBase.all_special_tokens_extended = _all_special_tokens_extended\nCOMPATEOF\n    fi\n    export PYTHONPATH=\"${_compat_dir}:$PYTHONPATH\"\n  fi\n"
     },
     "profile": {},
     "options": {},
     "services": {
       "tritonserver": {
-        "command": "triton-resolve-model && triton-serve"
+        "command": "triton-preflight && triton-resolve-model && triton-serve"
       }
     }
   },
@@ -137,10 +138,10 @@
       "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
       "rev_count": 953160,
       "rev_date": "2026-02-23T12:05:20Z",
-      "scrape_date": "2026-03-21T00:33:51.022442989Z",
+      "scrape_date": "2026-03-22T01:07:02.802595441Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -169,10 +170,10 @@
       "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
       "rev_count": 953160,
       "rev_date": "2026-02-23T12:05:20Z",
-      "scrape_date": "2026-03-21T00:33:51.022448878Z",
+      "scrape_date": "2026-03-22T01:07:02.802600669Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -203,8 +204,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T04:46:01.570753Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -234,8 +235,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T05:24:01.020869Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -265,8 +266,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T06:09:08.191550Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -296,8 +297,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T07:00:09.561573Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -327,8 +328,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T04:46:01.985362Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -346,7 +347,7 @@
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
-      "priority": 5
+      "priority": 7
     },
     {
       "attr_path": "coreutils",
@@ -363,8 +364,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T05:24:01.512082Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -382,7 +383,7 @@
       },
       "system": "aarch64-linux",
       "group": "toplevel",
-      "priority": 5
+      "priority": 7
     },
     {
       "attr_path": "coreutils",
@@ -399,8 +400,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T06:09:08.563766Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -415,7 +416,7 @@
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
-      "priority": 5
+      "priority": 7
     },
     {
       "attr_path": "coreutils",
@@ -432,8 +433,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T07:00:10.131388Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -452,7 +453,7 @@
       },
       "system": "x86_64-linux",
       "group": "toplevel",
-      "priority": 5
+      "priority": 7
     },
     {
       "attr_path": "gawk",
@@ -469,8 +470,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T04:46:02.726314Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -503,8 +504,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T05:24:02.545942Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -538,8 +539,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T06:09:09.265111Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -572,8 +573,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T07:00:11.383163Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -607,8 +608,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T04:46:02.937893Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -639,8 +640,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T05:24:03.276455Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -673,8 +674,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T06:09:09.511535Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -705,8 +706,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T07:00:12.216288Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -739,8 +740,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T07:00:32.370175Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -772,8 +773,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T04:46:41.814670Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -804,8 +805,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T05:24:58.548340Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -838,8 +839,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T06:09:47.680026Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -870,8 +871,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T07:01:14.558961Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -905,8 +906,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T04:47:45.820449Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -941,8 +942,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T05:26:15.278525Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -977,8 +978,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T06:10:52.416247Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -1013,8 +1014,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T07:02:37.987269Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -1047,10 +1048,10 @@
       "rev": "c3da7fb40018681c0918a1d4c08ed248a919e5df",
       "rev_count": 24,
       "rev_date": "2026-03-12T00:06:21Z",
-      "scrape_date": "2026-03-21T00:51:23.754229016Z",
+      "scrape_date": "2026-03-22T01:07:02.802639367Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -1078,10 +1079,10 @@
       "rev": "c3da7fb40018681c0918a1d4c08ed248a919e5df",
       "rev_count": 24,
       "rev_date": "2026-03-12T00:06:21Z",
-      "scrape_date": "2026-03-21T00:51:23.754229467Z",
+      "scrape_date": "2026-03-22T01:07:02.802639898Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -1109,10 +1110,10 @@
       "rev": "c3da7fb40018681c0918a1d4c08ed248a919e5df",
       "rev_count": 24,
       "rev_date": "2026-03-12T00:06:21Z",
-      "scrape_date": "2026-03-21T00:51:23.754230138Z",
+      "scrape_date": "2026-03-22T01:07:02.802640308Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -1142,8 +1143,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T07:03:33.896613Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -1184,8 +1185,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T04:48:25.875225Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -1215,8 +1216,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T05:27:08.194782Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -1246,8 +1247,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T06:11:33.134995Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -1277,8 +1278,8 @@
       "rev_date": "2026-02-23T12:05:20Z",
       "scrape_date": "2026-02-25T07:03:34.022261Z",
       "stabilities": [
-        "unstable",
         "staging",
+        "unstable",
         "stable"
       ],
       "unfree": false,
@@ -1306,8 +1307,9 @@
       "rev": "b40629efe5d6ec48dd1efba650c797ddbd39ace0",
       "rev_count": 964859,
       "rev_date": "2026-03-18T08:17:15Z",
-      "scrape_date": "2026-03-21T00:33:51.022500866Z",
+      "scrape_date": "2026-03-22T01:07:02.802649111Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -1339,8 +1341,9 @@
       "rev": "b40629efe5d6ec48dd1efba650c797ddbd39ace0",
       "rev_count": 964859,
       "rev_date": "2026-03-18T08:17:15Z",
-      "scrape_date": "2026-03-21T00:33:51.022502619Z",
+      "scrape_date": "2026-03-22T01:07:02.802649782Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -1372,8 +1375,9 @@
       "rev": "b40629efe5d6ec48dd1efba650c797ddbd39ace0",
       "rev_count": 964859,
       "rev_date": "2026-03-18T08:17:15Z",
-      "scrape_date": "2026-03-21T00:33:51.022507226Z",
+      "scrape_date": "2026-03-22T01:07:02.802651655Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -1402,8 +1406,9 @@
       "rev": "b40629efe5d6ec48dd1efba650c797ddbd39ace0",
       "rev_count": 964859,
       "rev_date": "2026-03-18T08:17:15Z",
-      "scrape_date": "2026-03-21T00:33:51.022508327Z",
+      "scrape_date": "2026-03-22T01:07:02.802652086Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -1422,28 +1427,28 @@
     {
       "attr_path": "triton-server",
       "broken": false,
-      "derivation": "/nix/store/ywh1bflcd59i6qvwhzs71d7dbd6xqn7m-triton-server-2.66.0+6f6f408.drv",
+      "derivation": "/nix/store/l7lzi0nhhvsysfxlr303d4v901m18j0q-triton-server-2.66.0+4ee16e4.drv",
       "description": "NVIDIA Triton Inference Server",
       "install_id": "triton-server",
       "license": "BSD-3-Clause",
-      "locked_url": "git@github.com:flox/nvidia-triton-server.git?rev=98d5772d87e68911a1581e6f0e19d2f3b7ee47aa",
-      "name": "triton-server-2.66.0+6f6f408",
+      "locked_url": "git@github.com:flox/nvidia-triton-server.git?rev=0a48970c21f2c432045eb005e8a422dedb61ff80",
+      "name": "triton-server-2.66.0+4ee16e4",
       "pname": "triton-server",
-      "rev": "98d5772d87e68911a1581e6f0e19d2f3b7ee47aa",
-      "rev_count": 62,
-      "rev_date": "2026-03-21T00:26:49Z",
-      "scrape_date": "2026-03-21T00:33:51.022512473Z",
+      "rev": "0a48970c21f2c432045eb005e8a422dedb61ff80",
+      "rev_count": 66,
+      "rev_date": "2026-03-22T00:51:37Z",
+      "scrape_date": "2026-03-22T01:07:02.802653788Z",
       "stabilities": [
-        "unstable",
-        "staging"
+        "staging",
+        "unstable"
       ],
       "unfree": false,
-      "version": "2.66.0+6f6f408",
+      "version": "2.66.0+4ee16e4",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/kgjif8gp2ydvfiass9lgchishlakypmc-triton-server-2.66.0+6f6f408"
+        "out": "/nix/store/953rd27cs67v544lkzhw9ymki6fq8f1a-triton-server-2.66.0+4ee16e4"
       },
       "system": "x86_64-linux",
       "group": "triton-server",
@@ -1462,8 +1467,9 @@
       "rev": "b40629efe5d6ec48dd1efba650c797ddbd39ace0",
       "rev_count": 964859,
       "rev_date": "2026-03-18T08:17:15Z",
-      "scrape_date": "2026-03-21T00:33:51.022515468Z",
+      "scrape_date": "2026-03-22T01:07:02.802655190Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -1490,7 +1496,7 @@
       "rev": "fa2ef3e6e5fbe95bf0acb8a597b2057a6d0b0685",
       "rev_count": 15,
       "rev_date": "2026-03-19T22:15:33Z",
-      "scrape_date": "2026-03-21T00:33:51.022518032Z",
+      "scrape_date": "2026-03-22T01:07:02.802657324Z",
       "stabilities": [
         "unstable"
       ],

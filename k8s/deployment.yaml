@@ -10,6 +10,8 @@ spec:
   # node-local (PVC is ReadWriteOnce). Scale by adding Deployments on
   # separate nodes, not by increasing replicas.
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: triton
@@ -19,10 +21,7 @@ spec:
         app.kubernetes.io/name: triton
       annotations:
         flox.dev/environment: "barstoolbluz/triton-runtime"
-        # Activate mode "run" (the default) is correct here — uv, shellcheck,
-        # and bats are explicitly installed packages (available in run mode).
-        # The on-activate hook runs triton-setup-backends, triton-setup-models,
-        # and installs OpenAI frontend deps into $FLOX_ENV_CACHE on every start.
+        flox.dev/activate-mode: "dev"
     spec:
       runtimeClassName: flox
 
@@ -39,7 +38,7 @@ spec:
       containers:
         - name: triton
           image: flox/empty:1.0.0
-          command: ["sh", "-c", "triton-resolve-model && triton-serve"]
+          command: ["sh", "-c", "triton-preflight && triton-resolve-model && triton-serve"]
 
           env:
             # Override the default cache/repository paths to use the PVC mount.
@@ -49,6 +48,8 @@ spec:
               value: "/models/hf-hub"
             - name: TRITON_MODEL_REPOSITORY
               value: "/models/repository"
+            - name: TRITON_SKIP_GPU_CHECK
+              value: "1"
 
             # ── Secrets ──
             # Uncomment and create the referenced Secret to pull gated

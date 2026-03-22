@@ -3,11 +3,10 @@ schema-version = "1.10.0"
 
 [install]
 # triton-specific packages
-triton-server.store-path = "/nix/store/953rd27cs67v544lkzhw9ymki6fq8f1a-triton-server-2.66.0+4ee16e4"
-#triton-server.pkg-path = "flox/triton-server"
-#triton-server.version = "2.66.0+6f6f408"		## latest
-#triton-server.systems = ["x86_64-linux"]
-#triton-server.pkg-group = "triton-server"
+triton-server.pkg-path = "flox/triton-server"
+triton-server.version = "2.66.0+4ee16e4"		## latest
+triton-server.systems = ["x86_64-linux"]
+triton-server.pkg-group = "triton-server"
 triton-server.priority = 0
 triton-python-backend.pkg-path = "flox/triton-python-backend"
 triton-python-backend.systems = ["x86_64-linux"]
