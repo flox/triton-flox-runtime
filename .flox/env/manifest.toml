@@ -3,7 +3,7 @@ schema-version = "1.10.0"
 
 [install]
 # triton-specific packages
-triton-server.store-path = "/nix/store/lgsg2f9i5v88kaflxprrds1qpwwsbjrd-triton-server-2.66.0+1bbd781"
+triton-server.store-path = "/nix/store/28ih3j0q2p4siwx61nck8fmlkxly0a7x-triton-server-2.66.0+1bbd781"
 #triton-server.pkg-path = "flox/triton-server"
 #triton-server.version = "2.66.0+6f6f408"		## latest
 #triton-server.systems = ["x86_64-linux"]
