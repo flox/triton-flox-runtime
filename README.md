@@ -250,6 +250,14 @@ TRITON_HTTP_PORT=9000 TRITON_LOG_VERBOSE=1 flox activate --start-services
 | `TRITON_BACKEND_DIR` | _(set by on-activate hook)_ | Backend library directory. Automatically set to `$FLOX_ENV_CACHE/backends` by the `triton-setup-backends` hook. Passed as `--backend-directory` to tritonserver. Must exist as a directory |
 | `TRITON_BACKEND_CONFIG` | _(unset)_ | Comma-separated backend configs. Format: `backend:key=val,backend:key=val` |
 
+### vLLM configuration settings
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TRITON_VLLM_CONFIG` | `{}` | JSON string merged on top of per-model `model-defaults.json`. Example: `'{"gpu_memory_utilization": 0.95}'`. Shallow-merged via `dict.update()`, so top-level keys replace defaults |
+| `TRITON_DEFAULT_MAX_TOKENS` | `1024` | Default `max_tokens` value used by the OpenAI frontend when clients omit it from their request. Does **not** cap — clients can still request higher values |
+| `TRITON_MAX_TOKENS` | `1024` | Hard cap on generated tokens, enforced at the vLLM engine level via `override_generation_config.max_new_tokens`. Clamps all client requests: `min(max_model_len - prompt_len, client_max_tokens, TRITON_MAX_TOKENS)`. Set to empty string to disable: `TRITON_MAX_TOKENS=""` |
+
 ### OpenAI frontend settings
 
 | Variable | Default | Description |
@@ -1288,6 +1296,7 @@ Key `model.json` fields:
 - **`max_model_len`**: override maximum sequence length
 - **`quantization`**: quantization method (`awq`, `gptq`, `squeezellm`)
 - **`enforce_eager`**: disable CUDA graphs (useful for debugging)
+- **`override_generation_config`**: dict of generation defaults enforced at engine level. Injected automatically when `TRITON_MAX_TOKENS` is set (e.g., `{"max_new_tokens": 1024}`)
 
 See the [vLLM engine arguments documentation](https://docs.vllm.ai/en/latest/serving/engine_args.html)
 for the full list.
