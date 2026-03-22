@@ -3,8 +3,9 @@ schema-version = "1.10.0"
 
 [install]
 # triton-specific packages
-triton-server.store-path = "/nix/store/jpfcs0sx8d1kkgmprfpwgimb6jk37vxx-triton-server-2.66.0+ae26af8"
+triton-server.pkg-path = "flox/triton-server"
 triton-server.systems = ["x86_64-linux"]
+triton-server.version = "2.66.0+ae26af8"
 triton-server.pkg-group = "triton-server"
 triton-server.priority = 0
 triton-python-backend.pkg-path = "flox/triton-python-backend"
@@ -16,8 +17,9 @@ triton-onnxruntime-backend.priority = 5
 triton-tensorrt-backend.pkg-path = "flox/triton-tensorrt-backend"
 triton-tensorrt-backend.systems = ["x86_64-linux"]
 triton-tensorrt-backend.priority = 6
-triton-vllm-backend.store-path = "/nix/store/rpy3mkgg5q6sfvhmcl29720wjxq5rc4g-triton-vllm-backend-2.66.0"
+triton-vllm-backend.pkg-path = "flox/triton-vllm-backend"
 triton-vllm-backend.systems = ["x86_64-linux"]
+triton-vllm-backend.pkg-group = "vllm-backend"
 triton-vllm-backend.priority = 7
 
 ## other required deps
