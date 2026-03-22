@@ -3,7 +3,7 @@ schema-version = "1.10.0"
 
 [install]
 # triton-specific packages
-triton-server.store-path = "/nix/store/28ih3j0q2p4siwx61nck8fmlkxly0a7x-triton-server-2.66.0+1bbd781"
+triton-server.store-path = "/nix/store/953rd27cs67v544lkzhw9ymki6fq8f1a-triton-server-2.66.0+4ee16e4"
 #triton-server.pkg-path = "flox/triton-server"
 #triton-server.version = "2.66.0+6f6f408"		## latest
 #triton-server.systems = ["x86_64-linux"]
@@ -97,7 +97,7 @@ on-activate = '''
   export TRITON_MODEL_REPOSITORY="${TRITON_MODEL_REPOSITORY:-$FLOX_ENV_CACHE/models}"
 
   # Generate model.json for Flox-packaged vLLM models
-  "$FLOX_ENV_PROJECT/scripts/triton-generate-vllm-config"
+  triton-generate-vllm-config
 
   # Auto-resolve tokenizer for OpenAI chat templates
   if [[ -n "${TRITON_MODEL:-}" ]] && [[ -z "${TRITON_OPENAI_TOKENIZER:-}" ]]; then
