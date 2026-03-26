@@ -143,6 +143,10 @@ on-activate = '''
       # Remove pip numpy — it shadows the Nix-provided one which has
       # proper RPATH for libstdc++ (pip manylinux wheel does not).
       rm -rf "$_openai_deps"/numpy{,.libs,*.dist-info}
+      # Remove pip certifi — uv --target doesn't install cacert.pem
+      # properly, so certifi.where() returns an invalid path. The
+      # Nix-provided certifi (from the vllm closure) has it.
+      rm -rf "$_openai_deps"/certifi{,*.dist-info}
       touch "$_openai_sentinel"
     fi
     export PYTHONPATH="${_openai_deps}${PYTHONPATH:+:$PYTHONPATH}"
